@@ -140,21 +140,21 @@ db.createUser({user: 'view_user', pwd: '123', roles: ["view_access"]})
 
 If you are in Atlas, database access is managed directly in the Atlas website in the `Database Access` tab.
 
-![Database access tab in Atlas](/home/polux/Work/MongoDB_dev_center_drafts/blog_posts/hiding-fields-views/images/1_db_access.png)
+![Database access tab in Atlas](./images/1_db_access.png)
 
 Then you need to create a custom role.
 
-![Custom Roles tab in Atlas](/home/polux/Work/MongoDB_dev_center_drafts/blog_posts/hiding-fields-views/images/2_custom_roles.png)
+![Custom Roles tab in Atlas](./images/2_custom_roles.png)
 
-![Create the custom role in Atlas](/home/polux/Work/MongoDB_dev_center_drafts/blog_posts/hiding-fields-views/images/3_create_role.png)
+![Create the custom role in Atlas](./images/3_create_role.png)
 
 > Note: In the step 2, I only selected the _Collection Actions > Query and Write Actions > find_ option.
 
 Now that your role is created, head back to the `Database Users` tab and create a user with this custom role.
 
-![Navigation to create a user in Atlas](/home/polux/Work/MongoDB_dev_center_drafts/blog_posts/hiding-fields-views/images/4_create_user_nav.png)
+![Navigation to create a user in Atlas](./images/4_create_user_nav.png)
 
-![Create a user in Atlas with a custom role](/home/polux/Work/MongoDB_dev_center_drafts/blog_posts/hiding-fields-views/images/5_create_user.png)
+![Create a user in Atlas with a custom role](./images/5_create_user.png)
 
 ## Testing Data Access Control with Restricted User Account
 
