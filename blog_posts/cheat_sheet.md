@@ -194,8 +194,8 @@ db.coll.updateMany({}, {$set: {"x": 1}}, {"writeConcern": {"w": "majority", "wti
 
 ``` javascript
 db.coll.deleteOne({name: "Max"})
+db.coll.deleteMany({name: "Max"}, {"writeConcern": {"w": "majority", "wtimeout": 5000}})
 db.coll.deleteMany({}) // WARNING! Deletes all the docs but not the collection itself and its index definitions
-db.coll.deleteOne({name: "Max"}, {"writeConcern": {"w": "majority", "wtimeout": 5000}})
 db.coll.findOneAndDelete({"name": "Max"})
 ```
 
