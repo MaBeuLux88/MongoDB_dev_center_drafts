@@ -1,7 +1,11 @@
 First steps in the MongoDB World? This cheat sheet is filled with some handy tips, commands, and quick references to get you connected and CRUD'ing in no time!
 
 -   Get a [free MongoDB cluster](/quickstart/free-atlas-cluster) in [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
--   Follow a course in [MongoDB University](https://university.mongodb.com/).
+-   Follow a course in [MongoDB University](https://learn.mongodb.com/).
+
+## Updates
+
+- September 2023: Updated for MongoDB 7.0.
 
 ## Table of Contents
 
@@ -16,17 +20,17 @@ First steps in the MongoDB World? This cheat sheet is filled with some handy tip
 -   [Sharded Cluster](#sharded-cluster)
 -   [Wrap-up](#wrap-up)
 
-## Connect MongoDB Shell
+## Connect via `mongosh`
 
 ``` bash
-mongo # connects to mongodb://127.0.0.1:27017 by default
-mongo --host <host> --port <port> -u <user> -p <pwd> # omit the password if you want a prompt
-mongo "mongodb://192.168.1.1:27017"
-mongo "mongodb+srv://cluster-name.abcde.mongodb.net/<dbname>" --username <username> # MongoDB Atlas
+mongosh # connects to mongodb://127.0.0.1:27017 by default
+mongosh --host <host> --port <port> --authenticationDatabase admin -u <user> -p <pwd> # omit the password if you want a prompt
+mongosh "mongodb://<user>:<password>@192.168.1.1:27017"
+mongosh "mongodb://192.168.1.1:27017"
+mongosh "mongodb+srv://cluster-name.abcde.mongodb.net/<dbname>" --apiVersion 1 --username <username> # MongoDB Atlas
 ```
 
--   [More documentation about the MongoDB Shell](https://docs.mongodb.com/manual/mongo/).
--   [To connect with the new mongosh](https://docs.mongodb.com/mongodb-shell/connect#std-label-mdb-shell-connect), just replace `mongo` by `mongosh`.
+- [mongosh documentation](https://docs.mongodb.com/mongodb-shell/connect#std-label-mdb-shell-connect).
 
 🔝 [Table of Contents](#table-of-contents) 🔝
 
@@ -65,10 +69,10 @@ load("myScript.js")
 
 ``` javascript
 db.coll.insertOne({name: "Max"})
-db.coll.insert([{name: "Max"}, {name:"Alex"}]) // ordered bulk insert
-db.coll.insert([{name: "Max"}, {name:"Alex"}], {ordered: false}) // unordered bulk insert
-db.coll.insert({date: ISODate()})
-db.coll.insert({name: "Max"}, {"writeConcern": {"w": "majority", "wtimeout": 5000}})
+db.coll.insertMany([{name: "Max"}, {name:"Alex"}]) // ordered bulk insert
+db.coll.insertMany([{name: "Max"}, {name:"Alex"}], {ordered: false}) // unordered bulk insert
+db.coll.insertOne({date: ISODate()})
+db.coll.insertOne({name: "Max"}, {"writeConcern": {"w": "majority", "wtimeout": 5000}})
 ```
 
 ### Read
@@ -83,9 +87,8 @@ db.coll.find({name: "Max", age: 32}).explain("executionStats") // or "queryPlann
 db.coll.distinct("name")
 
 // Count
-db.coll.count({age: 32})          // estimation based on collection metadata
-db.coll.estimatedDocumentCount()  // estimation based on collection metadata
 db.coll.countDocuments({age: 32}) // alias for an aggregation pipeline - accurate count
+db.coll.estimatedDocumentCount()  // estimation based on collection metadata
 
 // Comparison
 db.coll.find({"year": {$gt: 1970}})
@@ -151,56 +154,48 @@ db.coll.find().readConcern("majority")
 ### Update
 
 ``` javascript
-db.coll.update({"_id": 1}, {"year": 2016}) // WARNING! Replaces the entire document
-db.coll.update({"_id": 1}, {$set: {"year": 2016, name: "Max"}})
-db.coll.update({"_id": 1}, {$unset: {"year": 1}})
-db.coll.update({"_id": 1}, {$rename: {"year": "date"} })
-db.coll.update({"_id": 1}, {$inc: {"year": 5}})
-db.coll.update({"_id": 1}, {$mul: {price: NumberDecimal("1.25"), qty: 2}})
-db.coll.update({"_id": 1}, {$min: {"imdb": 5}})
-db.coll.update({"_id": 1}, {$max: {"imdb": 8}})
-db.coll.update({"_id": 1}, {$currentDate: {"lastModified": true}})
-db.coll.update({"_id": 1}, {$currentDate: {"lastModified": {$type: "timestamp"}}})
+db.coll.updateOne({"_id": 1}, {$set: {"year": 2016, name: "Max"}})
+db.coll.updateOne({"_id": 1}, {$unset: {"year": 1}})
+db.coll.updateOne({"_id": 1}, {$rename: {"year": "date"} })
+db.coll.updateOne({"_id": 1}, {$inc: {"year": 5}})
+db.coll.updateOne({"_id": 1}, {$mul: {price: NumberDecimal("1.25"), qty: 2}})
+db.coll.updateOne({"_id": 1}, {$min: {"imdb": 5}})
+db.coll.updateOne({"_id": 1}, {$max: {"imdb": 8}})
+db.coll.updateOne({"_id": 1}, {$currentDate: {"lastModified": true}})
+db.coll.updateOne({"_id": 1}, {$currentDate: {"lastModified": {$type: "timestamp"}}})
 
 // Array
-db.coll.update({"_id": 1}, {$push :{"array": 1}})
-db.coll.update({"_id": 1}, {$pull :{"array": 1}})
-db.coll.update({"_id": 1}, {$addToSet :{"array": 2}})
-db.coll.update({"_id": 1}, {$pop: {"array": 1}})  // last element
-db.coll.update({"_id": 1}, {$pop: {"array": -1}}) // first element
-db.coll.update({"_id": 1}, {$pullAll: {"array" :[3, 4, 5]}})
-db.coll.update({"_id": 1}, {$push: {scores: {$each: [90, 92, 85]}}})
+db.coll.updateOne({"_id": 1}, {$push :{"array": 1}})
+db.coll.updateOne({"_id": 1}, {$pull :{"array": 1}})
+db.coll.updateOne({"_id": 1}, {$addToSet :{"array": 2}})
+db.coll.updateOne({"_id": 1}, {$pop: {"array": 1}})  // last element
+db.coll.updateOne({"_id": 1}, {$pop: {"array": -1}}) // first element
+db.coll.updateOne({"_id": 1}, {$pullAll: {"array" :[3, 4, 5]}})
+db.coll.updateOne({"_id": 1}, {$push: {"scores": {$each: [90, 92]}}})
+db.coll.updateOne({"_id": 2}, {$push: {"scores": {$each: [40, 60], $sort: 1}}}) // array sorted
 db.coll.updateOne({"_id": 1, "grades": 80}, {$set: {"grades.$": 82}})
 db.coll.updateMany({}, {$inc: {"grades.$[]": 10}})
-db.coll.update({}, {$set: {"grades.$[element]": 100}}, {multi: true, arrayFilters: [{"element": {$gte: 100}}]})
-
-// Update many
-db.coll.update({"year": 1999}, {$set: {"decade": "90's"}}, {"multi":true})
-db.coll.updateMany({"year": 1999}, {$set: {"decade": "90's"}})
+db.coll.updateMany({}, {$set: {"grades.$[element]": 100}}, {multi: true, arrayFilters: [{"element": {$gte: 100}}]})
 
 // FindOneAndUpdate
 db.coll.findOneAndUpdate({"name": "Max"}, {$inc: {"points": 5}}, {returnNewDocument: true})
 
 // Upsert
-db.coll.update({"_id": 1}, {$set: {item: "apple"}, $setOnInsert: {defaultQty: 100}}, {upsert: true})
+db.coll.updateOne({"_id": 1}, {$set: {item: "apple"}, $setOnInsert: {defaultQty: 100}}, {upsert: true})
 
 // Replace
 db.coll.replaceOne({"name": "Max"}, {"firstname": "Maxime", "surname": "Beugnet"})
 
-// Save
-db.coll.save({"item": "book", "qty": 40})
-
 // Write concern
-db.coll.update({}, {$set: {"x": 1}}, {"writeConcern": {"w": "majority", "wtimeout": 5000}})
+db.coll.updateMany({}, {$set: {"x": 1}}, {"writeConcern": {"w": "majority", "wtimeout": 5000}})
 ```
 
 ### Delete
 
 ``` javascript
-db.coll.remove({name: "Max"})
-db.coll.remove({name: "Max"}, {justOne: true})
-db.coll.remove({}) // WARNING! Deletes all the docs but not the collection itself and its index definitions
-db.coll.remove({name: "Max"}, {"writeConcern": {"w": "majority", "wtimeout": 5000}})
+db.coll.deleteOne({name: "Max"})
+db.coll.deleteMany({name: "Max"}, {"writeConcern": {"w": "majority", "wtimeout": 5000}})
+db.coll.deleteMany({}) // WARNING! Deletes all the docs but not the collection itself and its index definitions
 db.coll.findOneAndDelete({"name": "Max"})
 ```
 
@@ -325,16 +320,12 @@ db.stats()
 
 db.getReplicationInfo()
 db.printReplicationInfo()
-db.isMaster()
+db.hello()
 db.hostInfo()
-db.printShardingStatus()
+
 db.shutdownServer()
 db.serverStatus()
 
-db.setSlaveOk()
-db.getSlaveOk()
-
-db.getProfilingLevel()
 db.getProfilingStatus()
 db.setProfilingLevel(1, 200) // 0 == OFF, 1 == ON with slowms, 2 == ON
 
@@ -365,21 +356,22 @@ while (!watchCursor.isExhausted()){
 
 ``` javascript
 rs.status()
-rs.initiate({"_id": "replicaTest",
+rs.initiate({"_id": "RS1",
   members: [
-    { _id: 0, host: "127.0.0.1:27017" },
-    { _id: 1, host: "127.0.0.1:27018" },
-    { _id: 2, host: "127.0.0.1:27019", arbiterOnly:true }]
+    { _id: 0, host: "mongodb1.net:27017" },
+    { _id: 1, host: "mongodb2.net:27017" },
+    { _id: 2, host: "mongodb3.net:27017" }]
 })
-rs.add("mongodbd1.example.net:27017")
-rs.addArb("mongodbd2.example.net:27017")
-rs.remove("mongodbd1.example.net:27017")
+rs.add("mongodb4.net:27017")
+rs.addArb("mongodb5.net:27017")
+rs.remove("mongodb1.net:27017")
 rs.conf()
-rs.isMaster()
+rs.hello()
 rs.printReplicationInfo()
-rs.printSlaveReplicationInfo()
-rs.reconfig(<valid_conf>)
-rs.slaveOk()
+rs.printSecondaryReplicationInfo()
+rs.reconfig(config)
+rs.reconfigForPSASet(memberIndex, config, { options } )
+db.getMongo().setReadPref('secondaryPreferred')
 rs.stepDown(20, 5) // (stepDownSecs, secondaryCatchUpPeriodSecs)
 ```
 
@@ -388,15 +380,15 @@ rs.stepDown(20, 5) // (stepDownSecs, secondaryCatchUpPeriodSecs)
 ## Sharded Cluster
 
 ``` javascript
+db.printShardingStatus()
+
 sh.status()
-sh.addShard("rs1/mongodbd1.example.net:27017")
+sh.addShard("rs1/mongodb1.example.net:27017")
 sh.shardCollection("mydb.coll", {zipcode: 1})
 
 sh.moveChunk("mydb.coll", { zipcode: "53187" }, "shard0019")
 sh.splitAt("mydb.coll", {x: 70})
 sh.splitFind("mydb.coll", {x: 70})
-sh.disableAutoSplit()
-sh.enableAutoSplit()
 
 sh.startBalancer()
 sh.stopBalancer()
@@ -406,29 +398,30 @@ sh.getBalancerState()
 sh.setBalancerState(true/false)
 sh.isBalancerRunning()
 
-sh.addTagRange("mydb.coll", {state: "NY", zip: MinKey }, { state: "NY", zip: MaxKey }, "NY")
-sh.removeTagRange("mydb.coll", {state: "NY", zip: MinKey }, { state: "NY", zip: MaxKey }, "NY")
-sh.addShardTag("shard0000", "NYC")
-sh.removeShardTag("shard0000", "NYC")
+sh.startAutoMerger()
+sh.stopAutoMerger()
+sh.enableAutoMerger()
+sh.disableAutoMerger()
 
-sh.addShardToZone("shard0000", "JFK")
+sh.updateZoneKeyRange("mydb.coll", {state: "NY", zip: MinKey }, { state: "NY", zip: MaxKey }, "NY")
+sh.removeRangeFromZone("mydb.coll", {state: "NY", zip: MinKey }, { state: "NY", zip: MaxKey })
+sh.addShardToZone("shard0000", "NYC")
 sh.removeShardFromZone("shard0000", "NYC")
-sh.removeRangeFromZone("mydb.coll", {a: 1, b: 1}, {a: 10, b: 10})
 ```
 
 🔝 [Table of Contents](#table-of-contents) 🔝
 
 ## Wrap-up
 
-I hope you liked my little but - hopefully - helpful cheat sheet. Of course, this list isn't exhaustive at all. There are a lot more commands but I'm sure you will find them in the [MongoDB documentation](https://docs.mongodb.com/).
+I hope you liked my little but - hopefully - helpful cheat sheet. Of course, this list isn't exhaustive at all. There are a lot more commands, but I'm sure you will find them in the [MongoDB documentation](https://www.mongodb.com/docs/).
 
 If you feel like I forgot a critical command in this list, please [send me a tweet](https://twitter.com/MBeugnet) and I will make sure to fix it.
 
-Check out our [free courses on MongoDB University](https://university.mongodb.com/) if you are not too sure what some of the above commands are doing.
+Check out our [free courses on MongoDB University](https://learn.mongodb.com/) if you are not too sure what some of the above commands are doing.
 
 >
 >
->If you have questions, please head to our [developer community website](https://community.mongodb.com/) where the MongoDB engineers and the MongoDB community will help you build your next big idea with MongoDB.
+>If you have questions, please head to our [developer community website](https://www.mongodb.com/community/) where the MongoDB engineers and the MongoDB community will help you build your next big idea with MongoDB.
 >
 >
 
