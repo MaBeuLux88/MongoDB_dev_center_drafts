@@ -1,16 +1,21 @@
-## TODO
+## Maxime TODO List
 
-- Check the repository links
+- Check the repository links in this blog post before publication.
 - Move my code to mongodb-repository.
-    - https://github.com/mongodb-developer/java-spring-boot-csfle
-    - https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle
+    - My code: https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle
+    - Old repo: https://github.com/mongodb-developer/java-spring-boot-csfle
+
+## Notes for reviewers:
+
+Please review this repo for now: https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle
+Blog post starts below this line.
 
 ## GitHub Repository
 
 The source code of this template is available on GitHub:
 
 ```bash
-git clone https://github.com/mongodb-developer/java-spring-boot-csfle
+git clone https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle
 ```
 
 To get started, you'll need:
@@ -49,7 +54,23 @@ And for Spring Data MongoDB:
 - [Baeldung Spring Data MongoDB Tutorial](https://www.baeldung.com/spring-data-mongodb-tutorial)
 - [Spring Initializr](https://start.spring.io/)
 
-## High Level Diagram
+This template is *significantly* larger than other online CSFLE template you can find online. It tries to provide
+reusable code for a real production environment using:
+
+- multiple encrypted collections,
+- automated JSON Schema generation,
+- server side JSON Schema,
+- separated clusters for DEKs and encrypted collections,
+- automated Data Encryption Keys generation or retrieval,
+- SpEL Evaluation Extension,
+- auto-implemented repositories,
+- Open API documentation 3.0.1,
+- and much more.
+
+While I was coding, I also tried to respect the [SOLID Principales](https://www.baeldung.com/solid-principles) as much
+as possible to increase the code readability, usability and reutilization.
+
+## High Level Diagrams
 
 Now that we are all on board, here is a high level diagram of the different moving parts required to create a correctly
 configured MongoClient which can encrypt and decrypt fields automatically.
@@ -69,9 +90,11 @@ Once the connection with MongoDB—capable of encrypting and decrypting the fiel
 configuration and library, we are just using a classical three-tier architecture to expose a REST API and manage the
 communication all the way down to the MongoDB database.
 
-![Project High Level Diagram](./Controller-Service-Repos.png)
+![Three-tier achitecture](./Controller-Service-Repos.png)
 
-Here again, nothing tricky or fascinating to discuss, so we are not going to discuss this here.
+Here, nothing tricky or fascinating to discuss, so we are not going to discuss this in this blog post.
+
+Let's now discuss all the complicated bits of this template.
 
 ## Creation of the Key Vault Collection
 
@@ -130,8 +153,7 @@ manually once and remove the code as it's never going to be executed again. I gu
 you are running this code in a CI/CD pipeline.
 
 One important thing to note here is the dependency to a completely standard and ephemeral `MongoClient` (use of a
-try-with-resources block) as we are already creating a collection and an
-index in our MongoDB cluster.
+try-with-resources block) as we are already creating a collection and an index in our MongoDB cluster.
 
 [KeyVaultServiceImpl.java](https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle/blob/main/src/main/java/com/mongodb/quickstart/javaspringbootcsfle/csfleServiceImpl/KeyVaultServiceImpl.java)
 
@@ -245,7 +267,7 @@ public class MongoDBKeyVaultClientConfiguration {
 
 We can instantiate directly a `ClientEncryption` bean using
 the [KMS](https://www.mongodb.com/docs/manual/core/queryable-encryption/fundamentals/kms-providers/) and use it to
-generate our DEKs.
+generate our DEKs (one for each encrypted collection).
 
 [DataEncryptionKeyServiceImpl.java](https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle/blob/main/src/main/java/com/mongodb/quickstart/javaspringbootcsfle/csfleServiceImpl/DataEncryptionKeyServiceImpl.java)
 
@@ -328,16 +350,7 @@ public class PersonEntity {
     @Encrypted(algorithm = "AEAD_AES_256_CBC_HMAC_SHA_512-Random")
     private String bloodType;
 
-    public PersonEntity() {
-    }
-
-    public PersonEntity(ObjectId id, String firstName, String lastName, String ssn, String bloodType) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.ssn = ssn;
-        this.bloodType = bloodType;
-    }
+    // Constructors
 
     @Override
     // toString()
@@ -354,7 +367,7 @@ we need to generate the JSON Schema:
 - `ssn` is a String that requires a deterministic algorithm.
 - `bloodType` is a String that requires a random algorithm.
 
-We have everything we need to generate this JSON Schema automatically.
+The generated JSON Schema looks like this:
 
 ```json
 {
@@ -438,12 +451,11 @@ case.
 JSON Schemas are actually not trivial to generate in a Spring Data MongoDB project.
 
 As a matter of fact, to generate the JSON Schemas, we need the MappingContext (the entities, etc.) which is created by
-the automatic
-configuration of Spring Data which creates the `MongoClient` connection and the `MongoTemplate`...
+the automatic configuration of Spring Data which creates the `MongoClient` connection and the `MongoTemplate`...
 
 But to create the MongoClient—with the automatic encryption enabled—you need the JSON Schemas!
 
-It took me a significant amount of time to find a solution to this deadlock and you can just enjoy the solution now!
+It took me a significant amount of time to find a solution to this deadlock, and you can just enjoy the solution now!
 
 The solution is to inject the JSON Schema creation in the autoconfiguration process by instantiating
 the `MongoClientSettingsBuilderCustomizer` bean.
@@ -524,11 +536,13 @@ public class MongoDBSecureClientConfiguration {
 
 > One thing to note here is the option to separate the DEKs from the encrypted collections in two completely separated
 > MongoDB clusters. This isn't mandatory, but it can be a handy trick if you choose to have a different backup retention
-> policy for your two clusters. This can be interesting for the GDPR Article 17 "Right to erasure" for instance as you can
-> then guarantee that a DEK can completely disappear from your systems (backup included). I talk more about this approach
-> in this [Java CSFLE blog post](https://www.mongodb.com/developer/languages/java/java-client-side-field-level-encryption/). 
+> policy for your two clusters. This can be interesting for the GDPR Article 17 "Right to erasure" for instance as you
+> can then guarantee that a DEK can completely disappear from your systems (backup included). I talk more about this
+> approach in
+>
+this [Java CSFLE blog post](https://www.mongodb.com/developer/languages/java/java-client-side-field-level-encryption/).
 
-Here is the JSON Schema service which stores the generated JSON schemas in a map:  
+Here is the JSON Schema service which stores the generated JSON schemas in a map:
 
 [SchemaServiceImpl.java](https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle/blob/main/src/main/java/com/mongodb/quickstart/javaspringbootcsfle/csfleServiceImpl/SchemaServiceImpl.java)
 
@@ -567,3 +581,130 @@ public class SchemaServiceImpl implements SchemaService {
 }
 ```
 
+We are storing the JSON Schemas because this template also implements one of the good practices of CSFLE: server-side
+JSON Schemas.
+
+## Create or Update the Encrypted Collections
+
+Indeed, to make the automatic encryption and decryption of CSFLE work, you do not require the server-side JSON Schemas.
+
+Only the client-side ones is required for the Automatic Encryption Shared Library. But then nothing would prevent
+another misconfigured client or an admin connected directly to the cluster to insert or update some documents without
+encrypting the fields.
+
+To enforce this you can use the server-side JSON Schema as you would do to enforce a field type in a document for
+instance.
+
+But given that the JSON Schema will evolve with the different versions of your application, the JSON Schemas needs to be
+updated accordingly each time you restart your application.
+
+```java
+/**
+ * Create or update the encrypted collections with a server side JSON Schema to secure the encrypted field in the MongoDB database.
+ * This prevents any other client from inserting or editing the fields without encrypting the fields correctly.
+ */
+@Component
+public class EncryptedCollectionsSetup {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedCollectionsSetup.class);
+    private final MongoClient mongoClient;
+    private final SchemaService schemaService;
+
+    public EncryptedCollectionsSetup(MongoClient mongoClient, SchemaService schemaService) {
+        this.mongoClient = mongoClient;
+        this.schemaService = schemaService;
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        LOGGER.info("=> Setup the encrypted collections.");
+        schemaService.getSchemasMap()
+                     .forEach((namespace, schema) -> createOrUpdateCollection(mongoClient, namespace, schema));
+    }
+
+    private void createOrUpdateCollection(MongoClient mongoClient, MongoNamespace ns, BsonDocument schema) {
+        MongoDatabase db = mongoClient.getDatabase(ns.getDatabaseName());
+        String collStr = ns.getCollectionName();
+        if (doesCollectionExist(db, ns)) {
+            LOGGER.info("=> Updating {} collection's server side JSON Schema.", ns.getFullName());
+            db.runCommand(new Document("collMod", collStr).append("validator", jsonSchemaWrapper(schema)));
+        } else {
+            LOGGER.info("=> Creating encrypted collection {} with server side JSON Schema.", ns.getFullName());
+            db.createCollection(collStr, new CreateCollectionOptions().validationOptions(
+                    new ValidationOptions().validator(jsonSchemaWrapper(schema))));
+        }
+    }
+
+    public BsonDocument jsonSchemaWrapper(BsonDocument schema) {
+        return new BsonDocument("$jsonSchema", schema);
+    }
+
+    private boolean doesCollectionExist(MongoDatabase db, MongoNamespace ns) {
+        return db.listCollectionNames()
+                 .into(new ArrayList<>())
+                 .stream()
+                 .anyMatch(c -> c.equals(ns.getCollectionName()));
+    }
+
+}
+```
+
+## Multi-Entities Support
+
+One big feature of this template as well is the support of multiple entities. As you probably notices already, there is
+a `CompanyEntity` and all its related components but the code is generic enough to handle any amount of entities which
+isn't usually the case in all the other online tutorials.
+
+In this template, if you want to support a third type of entity, you just have to create the components of the
+three-tier architecture as usual and add your entry in the `EncryptedCollectionsConfiguration` class.
+
+[EncryptedCollectionsConfiguration.java](https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle/blob/main/src/main/java/com/mongodb/quickstart/javaspringbootcsfle/configuration/EncryptedCollectionsConfiguration.java)
+
+```java
+/**
+ * Information about the encrypted collections in the application.
+ * As I need the information in multiple places, I decided to create a configuration class with a static list of
+ * the encrypted collections and their information.
+ */
+public class EncryptedCollectionsConfiguration {
+    public static final List<EncryptedEntity> encryptedEntities = List.of(
+            new EncryptedEntity("mydb", "persons", PersonEntity.class, "personDEK"),
+            new EncryptedEntity("mydb", "companies", CompanyEntity.class, "companyDEK"));
+}
+```
+
+Everything else from the DEK generation to the encrypted collection creation with the server-side JSON Schema is fully
+automated and taken care of transparently. All you have to do is specify
+the `@Encrypted(algorithm = "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic")` annotation in the entity class and the field
+will be encrypted and decrypted automatically for you when you are using the auto-implemented repositories (courtesy of
+Spring Data MongoDB of course!).
+
+## Query by an Encrypted Field
+
+Maybe you noticed but this template implements the `findFirstBySsn(ssn)` method which means that it's possible to
+retrieve a person document by its SSN number, even if this field is encrypted.
+
+> Note that it only works because we are using a Deterministic encryption algorithm.
+
+[PersonRepository.java](https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle/blob/main/src/main/java/com/mongodb/quickstart/javaspringbootcsfle/repository/PersonRepository.java)
+
+```java
+/**
+ * Spring Data MongoDB repository for the PersonEntity
+ */
+@Repository
+public interface PersonRepository extends MongoRepository<PersonEntity, String> {
+
+    PersonEntity findFirstBySsn(String ssn);
+}
+```
+
+## Wrap Up
+
+Thanks for reading my blog post this far!
+
+If you have any questions about it, please feel free to open a question in the GitHub repository or ask a question in
+the [MongoDB Community Forum](https://www.mongodb.com/community/forums/c/data/java-frameworks/164). Feel free to ping me
+directly: [@MaBeuLux88](https://www.mongodb.com/community/forums/u/mabeulux88/summary).
+ 
+Pull requests and improvement ideas are very welcome!
