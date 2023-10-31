@@ -2,12 +2,15 @@
 
 - Check the repository links in this blog post before publication.
 - Move my code to mongodb-repository.
-    - My code: https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle
-    - Old repo: https://github.com/mongodb-developer/java-spring-boot-csfle
+  - My code: https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle
+  - Old repo: https://github.com/mongodb-developer/java-spring-boot-csfle
 
 ## Notes for reviewers:
 
 Please review this repo for now: https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle
+
+Google Doc for Reviews: https://docs.google.com/document/d/1Abq_GRa5Vs1ZVwypQ29khRzLGyHBuJpMqrvoX3Hqff8/edit?usp=sharing
+
 Blog post starts below this line.
 
 ## GitHub Repository
@@ -75,7 +78,7 @@ as possible to increase the code readability, usability and reutilization.
 Now that we are all on board, here is a high level diagram of the different moving parts required to create a correctly
 configured MongoClient which can encrypt and decrypt fields automatically.
 
-![Project High Level Diagram](./Spring-Data-MongoDB-CSFLE.png)
+![Project High Level Diagram][1]
 
 The arrows can mean different things in the diagram:
 
@@ -90,7 +93,7 @@ Once the connection with MongoDB—capable of encrypting and decrypting the fiel
 configuration and library, we are just using a classical three-tier architecture to expose a REST API and manage the
 communication all the way down to the MongoDB database.
 
-![Three-tier achitecture](./Controller-Service-Repos.png)
+![Three-tier architecture][2]
 
 Here, nothing tricky or fascinating to discuss, so we are not going to discuss this in this blog post.
 
@@ -100,7 +103,7 @@ Let's now discuss all the complicated bits of this template.
 
 As this is a tutorial, the code can be started from a blank MongoDB cluster.
 
-So first point of order is to create the key vault collection and its unique index on the `keyAltNames` field.
+So the first point of order is to create the key vault collection and its unique index on the `keyAltNames` field.
 
 [KeyVaultAndDekSetup.java](https://github.com/MaBeuLux88/mongodb-java-spring-boot-csfle/blob/main/src/main/java/com/mongodb/quickstart/javaspringbootcsfle/components/KeyVaultAndDekSetup.java)
 
@@ -147,6 +150,7 @@ public class KeyVaultAndDekSetup {
 
 }
 ```
+
 
 In production, you could choose to create the key vault collection and its unique index on the `keyAltNames` field
 manually once and remove the code as it's never going to be executed again. I guess it only makes sense to keep it if
@@ -210,6 +214,7 @@ public class KeyVaultServiceImpl implements KeyVaultService {
 }
 ```
 
+
 When it's done, we can close the standard MongoDB connection.
 
 ## Creation of the Data Encryption Keys
@@ -264,6 +269,7 @@ public class MongoDBKeyVaultClientConfiguration {
     }
 }
 ```
+
 
 We can instantiate directly a `ClientEncryption` bean using
 the [KMS](https://www.mongodb.com/docs/manual/core/queryable-encryption/fundamentals/kms-providers/) and use it to
@@ -321,6 +327,7 @@ public class DataEncryptionKeyServiceImpl implements DataEncryptionKeyService {
 }
 ```
 
+
 One thing to note here is that we are storing the DEKs in a map, so we don't have to retrieve them again later when we
 need them for the JSON Schemas.
 
@@ -358,6 +365,7 @@ public class PersonEntity {
     // Getters & Setters
 }
 ```
+
 
 As you can see above, this entity contains all the information we need to fully automate CSFLE. We have the information
 we need to generate the JSON Schema:
@@ -398,6 +406,7 @@ The generated JSON Schema looks like this:
   }
 }
 ```
+
 
 ## SpEL Evaluation Extension
 
@@ -442,6 +451,7 @@ public class EntitySpelEvaluationExtension implements EvaluationContextExtension
     }
 }
 ```
+
 
 Note that it's the place where we are retrieving the DEKs and matching them with the `target`: "PersonEntity" in this
 case.
@@ -534,13 +544,13 @@ public class MongoDBSecureClientConfiguration {
 }
 ```
 
+
 > One thing to note here is the option to separate the DEKs from the encrypted collections in two completely separated
 > MongoDB clusters. This isn't mandatory, but it can be a handy trick if you choose to have a different backup retention
 > policy for your two clusters. This can be interesting for the GDPR Article 17 "Right to erasure" for instance as you
 > can then guarantee that a DEK can completely disappear from your systems (backup included). I talk more about this
 > approach in
->
-this [Java CSFLE blog post](https://www.mongodb.com/developer/languages/java/java-client-side-field-level-encryption/).
+> this [Java CSFLE blog post](https://www.mongodb.com/developer/languages/java/java-client-side-field-level-encryption/).
 
 Here is the JSON Schema service which stores the generated JSON schemas in a map:
 
@@ -581,6 +591,7 @@ public class SchemaServiceImpl implements SchemaService {
 }
 ```
 
+
 We are storing the JSON Schemas because this template also implements one of the good practices of CSFLE: server-side
 JSON Schemas.
 
@@ -588,7 +599,7 @@ JSON Schemas.
 
 Indeed, to make the automatic encryption and decryption of CSFLE work, you do not require the server-side JSON Schemas.
 
-Only the client-side ones is required for the Automatic Encryption Shared Library. But then nothing would prevent
+Only the client-side ones are required for the Automatic Encryption Shared Library. But then nothing would prevent
 another misconfigured client or an admin connected directly to the cluster to insert or update some documents without
 encrypting the fields.
 
@@ -649,9 +660,10 @@ public class EncryptedCollectionsSetup {
 }
 ```
 
+
 ## Multi-Entities Support
 
-One big feature of this template as well is the support of multiple entities. As you probably notices already, there is
+One big feature of this template as well is the support of multiple entities. As you probably noticed already, there is
 a `CompanyEntity` and all its related components but the code is generic enough to handle any amount of entities which
 isn't usually the case in all the other online tutorials.
 
@@ -672,6 +684,7 @@ public class EncryptedCollectionsConfiguration {
             new EncryptedEntity("mydb", "companies", CompanyEntity.class, "companyDEK"));
 }
 ```
+
 
 Everything else from the DEK generation to the encrypted collection creation with the server-side JSON Schema is fully
 automated and taken care of transparently. All you have to do is specify
@@ -699,12 +712,18 @@ public interface PersonRepository extends MongoRepository<PersonEntity, String> 
 }
 ```
 
+
 ## Wrap Up
 
 Thanks for reading my blog post this far!
 
 If you have any questions about it, please feel free to open a question in the GitHub repository or ask a question in
-the [MongoDB Community Forum](https://www.mongodb.com/community/forums/c/data/java-frameworks/164). Feel free to ping me
-directly: [@MaBeuLux88](https://www.mongodb.com/community/forums/u/mabeulux88/summary).
- 
+the [MongoDB Community Forum](https://www.mongodb.com/community/forums/c/data/java-frameworks/164).
+
+Feel free to ping me directly in your post: [@MaBeuLux88](https://www.mongodb.com/community/forums/u/mabeulux88/summary).
+
 Pull requests and improvement ideas are very welcome!
+
+
+[1]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt18b620b3a7148e9c/6540f193d889b6001bb9d335/Spring-Data-MongoDB-CSFLE.png
+[2]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/bltc4a595f6e34a630a/6540f19336795e040703d335/Controller-Service-Repos.png
