@@ -60,17 +60,19 @@ by [mongocryptd](https://www.mongodb.com/docs/manual/core/csfle/reference/mongoc
 or
 the [Automatic Encryption Shared Library for Queryable Encryption](https://www.mongodb.com/docs/v7.0/core/queryable-encryption/reference/shared-library/#std-label-qe-reference-shared-library).
 
-> Automatic Encryption Shared Library for Queryable Encryption is a replacement for mongocryptd and should be the
+> `Automatic Encryption Shared Library for Queryable Encryption` is a replacement for `mongocryptd` and should be the
 > preferred solution. They are both optional and part of MongoDB Enterprise.
 
-In this tutorial, I will be using the explicit (or manual) encryption of fields which doesn't require `mongocryptd` and
-the enterprise edition of MongoDB or Atlas. If you would like to explore the enterprise version of CSFLE with Java, you
-can find out more
+In this tutorial, I will be using the explicit (or manual) encryption of fields which doesn't require `mongocryptd`
+or the `Automatic Encryption Shared Library` and the enterprise edition of MongoDB or Atlas. If you would like to
+explore
+the enterprise version of CSFLE with Java, you can find out more
 in [this documentation](https://www.mongodb.com/docs/manual/core/csfle/quick-start/#std-label-csfle-quick-start) or in
 my more recent
-post: [How to Implement Client-Side Field Level Encryption (CSFLE) in Java with Spring Data MongoDB](https://www.mongodb.com/developer/code-examples/java/java-spring-data-client-side-field-level-encryption/).
+post: [How to Implement Client-Side Field Level Encryption (CSFLE) in Java with Spring Data MongoDB.](https://www.mongodb.com/developer/code-examples/java/java-spring-data-client-side-field-level-encryption/)
 
-> Do not confuse `mongocryptd` with the `libmongocrypt` library which is the companion C library used by the drivers to
+> Do not confuse `mongocryptd` or the `Automatic Encryption Shared Library` with the `libmongocrypt` library which is
+> the companion C library used by the drivers to
 > encrypt and decrypt your data. We *need* this library to run CSFLE. I added it in the `pom.xml` file of this project.
 
 ``` xml
@@ -234,12 +236,15 @@ in [this answer](https://developer.mongodb.com/community/forums/t/client-side-fi
 in the [MongoDB Community Forum](https://developer.mongodb.com/community/forums/).
 
 > If the primary motivation is just to provably ensure that deleted plaintext user records remain deleted no matter
-> what, then it becomes a simple timing and separation of concerns strategy, and the most straight-forward solution is to
+> what, then it becomes a simple timing and separation of concerns strategy, and the most straight-forward solution is
+> to
 > move the keyvault collection to a different database or cluster completely, configured with a much shorter backup
 > retention; FLE does not assume your encrypted keyvault collection is co-resident with your active cluster or has the
-> same access controls and backup history, just that the client can, when needed, make an authenticated connection to that
+> same access controls and backup history, just that the client can, when needed, make an authenticated connection to
+> that
 > keyvault database. Important to note though that with a shorter backup cycle, in the event of some catastrophic data
-> corruption (malicious, intentional, or accidental), all keys for that db (and therefore all encrypted data) are only as
+> corruption (malicious, intentional, or accidental), all keys for that db (and therefore all encrypted data) are only
+> as
 > recoverable to the point in time as the shorter keyvault backup would restore.
 
 More trivial, but in the event of an intrusion, any stolen data will be completely worthless without the master key and
@@ -320,7 +325,8 @@ public class MasterKey {
 ```
 
 > This is nowhere near safe for a production environment because leaving the `master_key.txt` directly in the
-> application folder on your production server is like leaving the vault combination on a sticky note. Secure that file or
+> application folder on your production server is like leaving the vault combination on a sticky note. Secure that file
+> or
 > please consider using
 > a [KMS](https://docs.mongodb.com/drivers/security/client-side-field-level-encryption-local-key-to-kms/) in production.
 
@@ -383,12 +389,13 @@ MongoClientSettings mcs = MongoClientSettings.builder()
 MongoClient client = MongoClients.create(mcs);
 ```
 
-> `bypassAutoEncryption(true)` is the ticket for the Community Edition. Without it, `mongocryptd` would rely on the JSON
-> schema that you would have to provide to encrypt automatically the documents. See
+> `bypassAutoEncryption(true)` is the ticket for the Community Edition. Without it, `mongocryptd` or
+> the `Automatic Encryption Shared Library` would rely on the JSON schema that you would have to provide to encrypt
+> automatically the documents. See
 > this [example in the documentation](https://mongodb.github.io/mongo-java-driver/4.2/driver/tutorials/client-side-encryption/#examples).
 
-> You don't have to reuse the same connection string for both connections. It would actually be a lot more "
-> GDPR-friendly" to use separated clusters so you can enforce a low retention policy on the Data Encryption Keys.
+> You don't have to reuse the same connection string for both connections. It would actually be a lot more
+> "GDPR-friendly" to use separated clusters, so you can enforce a low retention policy on the Data Encryption Keys.
 
 ## Unique Index on Key Alternate Names
 
