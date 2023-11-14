@@ -424,10 +424,10 @@ Random rand = new Random();
 Document student = new Document("_id", new ObjectId());
 student.append("student_id", 10000d)
        .append("class_id", 1d)
-       .append("scores", asList(new Document("type", "exam").append("score", rand.nextDouble() * 100),
-                                new Document("type", "quiz").append("score", rand.nextDouble() * 100),
-                                new Document("type", "homework").append("score", rand.nextDouble() * 100),
-                                new Document("type", "homework").append("score", rand.nextDouble() * 100)));
+       .append("scores", List.of(new Document("type", "exam").append("score", rand.nextDouble() * 100),
+                                 new Document("type", "quiz").append("score", rand.nextDouble() * 100),
+                                 new Document("type", "homework").append("score", rand.nextDouble() * 100),
+                                 new Document("type", "homework").append("score", rand.nextDouble() * 100)));
 ```
 
 As you can see, we reproduced the same data model from the existing documents in this collection as we made sure
@@ -463,9 +463,8 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.util.List;
 import java.util.Random;
-
-import static java.util.Arrays.asList;
 
 public class Create {
 
@@ -479,10 +478,10 @@ public class Create {
             Document student = new Document("_id", new ObjectId());
             student.append("student_id", 10000d)
                    .append("class_id", 1d)
-                   .append("scores", asList(new Document("type", "exam").append("score", rand.nextDouble() * 100),
-                                            new Document("type", "quiz").append("score", rand.nextDouble() * 100),
-                                            new Document("type", "homework").append("score", rand.nextDouble() * 100),
-                                            new Document("type", "homework").append("score", rand.nextDouble() * 100)));
+                   .append("scores", List.of(new Document("type", "exam").append("score", rand.nextDouble() * 100),
+                                             new Document("type", "quiz").append("score", rand.nextDouble() * 100),
+                                             new Document("type", "homework").append("score", rand.nextDouble() * 100),
+                                             new Document("type", "homework").append("score", rand.nextDouble() * 100)));
 
             gradesCollection.insertOne(student);
         }
@@ -543,10 +542,10 @@ We could get exactly the same order if we wanted to by creating the document lik
 Random rand = new Random();
 Document student = new Document("_id", new ObjectId());
 student.append("student_id", 10000d)
-       .append("scores", asList(new Document("type", "exam").append("score", rand.nextDouble() * 100),
-                                new Document("type", "quiz").append("score", rand.nextDouble() * 100),
-                                new Document("type", "homework").append("score", rand.nextDouble() * 100),
-                                new Document("type", "homework").append("score", rand.nextDouble() * 100)))
+       .append("scores", List.of(new Document("type", "exam").append("score", rand.nextDouble() * 100),
+                                 new Document("type", "quiz").append("score", rand.nextDouble() * 100),
+                                 new Document("type", "homework").append("score", rand.nextDouble() * 100),
+                                 new Document("type", "homework").append("score", rand.nextDouble() * 100)))
        .append("class_id", 1d);
 ```
 
@@ -578,10 +577,10 @@ Let's make a grade factory method.
 
 ``` java
 private static Document generateNewGrade(double studentId, double classId) {
-    List<Document> scores = asList(new Document("type", "exam").append("score", rand.nextDouble() * 100),
-                                   new Document("type", "quiz").append("score", rand.nextDouble() * 100),
-                                   new Document("type", "homework").append("score", rand.nextDouble() * 100),
-                                   new Document("type", "homework").append("score", rand.nextDouble() * 100));
+    List<Document> scores = List.of(new Document("type", "exam").append("score", rand.nextDouble() * 100),
+                                    new Document("type", "quiz").append("score", rand.nextDouble() * 100),
+                                    new Document("type", "homework").append("score", rand.nextDouble() * 100),
+                                    new Document("type", "homework").append("score", rand.nextDouble() * 100));
     return new Document("_id", new ObjectId()).append("student_id", studentId)
                                               .append("class_id", classId)
                                               .append("scores", scores);
