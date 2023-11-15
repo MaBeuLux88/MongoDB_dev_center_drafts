@@ -1,5 +1,16 @@
 ## Updates
 
+### November 15th, 2023
+
+- [John Hopkins University (JHU)](https://coronavirus.jhu.edu/map.html) has stopped collecting data as of March 10th, 2023.
+- Here is JHU's [GitHub repository](https://github.com/CSSEGISandData/COVID-19).
+- First data entry is 2020-01-22, last one is 2023-03-09.
+- The data isn't updated anymore and is available in this cluster in readonly mode.
+
+```
+mongodb+srv://readonly:readonly@covid-19.hip2i.mongodb.net/
+```
+
 ### August 20th, 2020
 
 - Removed links to Thomas's dashboard as it's not supported anymore.
@@ -22,8 +33,8 @@
 
 [Thomas Rueckstiess](https://www.linkedin.com/in/rueckstiess/) and [myself](https://www.linkedin.com/in/maximebeugnet) came up with two [MongoDB Charts](https://www.mongodb.com/products/charts) dashboards with the Coronavirus dataset.
 
->-   Check out [Maxime's dashboard](https://charts.mongodb.com/charts-open-data-covid-19-zddgb/public/dashboards/60da4f45-f168-434a-82f6-d37ce88ff9ea).
->-   Check out Thomas's dashboard (not supported anymore).
+> - Check out [Maxime's dashboard](https://charts.mongodb.com/charts-open-data-covid-19-zddgb/public/dashboards/60da4f45-f168-434a-82f6-d37ce88ff9ea).
+> - Check out Thomas's dashboard (not supported anymore).
 
 Here is an example of the charts we made using the Coronavirus dataset. More below and in the MongoDB Charts dashboards.
 
@@ -57,7 +68,7 @@ This is great... But we can do even better visualisations with [MongoDB Charts](
 
 Then we used this data to produce a dashboard to monitor the progression of the virus.
 
->Here is [Maxime's dashboard](https://charts.mongodb.com/charts-open-data-covid-19-zddgb/public/dashboards/60da4f45-f168-434a-82f6-d37ce88ff9ea). It's shared publicly for the greater good.
+> Here is [Maxime's dashboard](https://charts.mongodb.com/charts-open-data-covid-19-zddgb/public/dashboards/60da4f45-f168-434a-82f6-d37ce88ff9ea). It's shared publicly for the greater good.
 
 [MongoDB Charts](https://www.mongodb.com/products/charts) also allows you to embed easily charts within a website... or a blog post.
 
