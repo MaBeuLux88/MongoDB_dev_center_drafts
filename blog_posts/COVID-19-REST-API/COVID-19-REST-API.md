@@ -4,6 +4,15 @@
 
 ## News
 
+### November 15th, 2023
+
+- [John Hopkins University (JHU)](https://coronavirus.jhu.edu/map.html) has stopped collecting data as of March 10th, 2023.
+- Here is JHU's [GitHub repository](https://github.com/CSSEGISandData/COVID-19).
+- First data entry is 2020-01-22, last one is 2023-03-09.
+- Current REST API is implemented using [Third-Party Services which is now deprecated](https://www.mongodb.com/docs/atlas/app-services/reference/services/).
+- Hosting the REST API honestly isn't very valuable now as the data isn't updated anymore and the entire cluster is available below.
+- The REST API will be removed on November 1st, 2024; but possibly earlier as it's currently mostly being queried for dates after the last entry.
+
 ### December 10th, 2020
 
 - Added 3 new calculated fields:
@@ -33,21 +42,13 @@ mongodb+srv://readonly:readonly@covid-19.hip2i.mongodb.net/covid19
 
 You can use this cluster to build your application, but what about having a nice and free REST API to access this curated dataset?!
 
-<figure align="center">
-    <img
-        style="border-radius: 10px"
-        src="https://www.mongodb.com/developer/images/article/johns-hopkins-university-covid-19-rest-api/lemur.gif"
-        alt="lemur opening big eyes gif"
-    />
-</figure>
-
 ## COVID-19 REST API
 
 > Here is the [REST API Documentation in Postman](https://documenter.getpostman.com/view/1678623/SzfDx54T?version=latest).
 
 You can use the button in the top right corner **Run in Postman** to directly import these examples in [Postman](https://www.postman.com/) and give them a spin.
 
-![Run in Postman button in the Postman documentation website](https://www.mongodb.com/developer/images/article/johns-hopkins-university-covid-19-rest-api/postman-button.png)
+![Run in Postman button in the Postman documentation website][1]
 
 One important detail to note: I'm logging each IP address calling this REST API and I'm counting the numbers of queries per IP in order to detect abuses. This will help me to take actions against abusive behaviours.
 
@@ -55,7 +56,9 @@ Also, remember that if you are trying to build an application that helps to dete
 
 ## But how did I build this?
 
-Simple and easy, I used the [MongoDB Realm 3rd party HTTP service](https://docs.mongodb.com/realm/services/configure/service-webhooks/) to build my HTTP webhooks.
+Simple and easy, I used the [MongoDB App Services Third-Party HTTP services](https://www.mongodb.com/docs/atlas/app-services/reference/services/) to build my HTTP webhooks.
+
+> [Third-Party Services](https://www.mongodb.com/docs/atlas/app-services/reference/services/) are now deprecated. Please use custom [HTTPS Endpoints instead](https://www.mongodb.com/docs/atlas/app-services/data-api/custom-endpoints/#std-label-https-endpoints) from now on.
 
 Each time you call an API, a serverless JavaScript function is executed to fetch your documents. Let's look at the three parts of this function separately, for the **Global & US** webhook (the most detailed cllection!):
 
@@ -129,7 +132,7 @@ exports = function(payload, response) {
 };
 ```
 
--   Finally, I build the answer with the documents from the cluster and I'm adding a `Contact` header so you can send us an email if you want to reach out.
+- Finally, I build the answer with the documents from the cluster and I'm adding a `Contact` header so you can send us an email if you want to reach out.
 
 ```javascript
 exports = function(payload, response) {
@@ -219,13 +222,13 @@ One detail to note: the payload is limited to 1MB per query. If you want to cons
 
 Here are a couple of example of how to run a query.
 
--   With this one you can retrieve all the metadata which will help you populate the query parameters in your other queries:
+- With this one you can retrieve all the metadata which will help you populate the query parameters in your other queries:
 
 ```shell
 curl --location --request GET 'https://webhooks.mongodb-stitch.com/api/client/v2.0/app/covid-19-qppza/service/REST-API/incoming_webhook/metadata'
 ```
 
--   The `covid19.global_and_us` collection is probably the most complete database in this system as it combines all the data from JHU's time series into a single collection. With the following query, you can filter down what you need from this collection:
+- The `covid19.global_and_us` collection is probably the most complete database in this system as it combines all the data from JHU's time series into a single collection. With the following query, you can filter down what you need from this collection:
 
 ```shell
 curl --location --request GET 'https://webhooks.mongodb-stitch.com/api/client/v2.0/app/covid-19-qppza/service/REST-API/incoming_webhook/global_and_us?country=Canada&state=Alberta&min_date=2020-04-22T00:00:00.000Z&max_date=2020-04-27T00:00:00.000Z&hide_fields=_id,%20country,%20country_code,%20country_iso2,%20country_iso3,%20loc,%20state'
@@ -240,3 +243,5 @@ I truly hope you will be able to build something amazing with this REST API. Eve
 [Send me a tweet](https://twitter.com/intent/tweet?url=http://developer.mongodb.com/article/johns-hopkins-university-covid-19-rest-api&text=Take%20a%20look%20at%20my%20project%20%40MBeugnet%21) with your project, I will definitely check it out!
 
 > If you have questions, please head to our developer community website where the MongoDB engineers and the MongoDB community will help you build your next big idea with MongoDB.
+
+[1]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blteee2f1e2d29d4361/6554356bf146760db015a198/postman_arrow.png
