@@ -6,7 +6,8 @@ You can retrieve an access token using the API like so:
 curl -X POST 'https://realm.mongodb.com/api/client/v2.0/app/covid-19-qppza/auth/providers/anon-user/login'
 ```
 
-Then you can read the [GraphQL API documentation](https://covid-19-qppza.mongodbstitch.com/) and start running queries like this one using the access token you just retrieved:
+Then you can read the [GraphQL API documentation](https://covid-19-qppza.mongodbstitch.com/) and start running queries
+like this one using the access token you just retrieved:
 
 ``` bash
 curl 'https://realm.mongodb.com/api/client/v2.0/app/covid-19-qppza/graphql' \
@@ -15,25 +16,41 @@ curl 'https://realm.mongodb.com/api/client/v2.0/app/covid-19-qppza/graphql' \
      --data-raw '{"query":"query {countries_summary {_id combined_names confirmed country country_codes country_iso2s country_iso3s date deaths population recovered states uids}}"}'
 ```
 
+## News
+
+### November 16th, 2023
+
+- [John Hopkins University (JHU)](https://coronavirus.jhu.edu/map.html) has stopped collecting data as of March 10th, 2023.
+- Here is JHU's [GitHub repository](https://github.com/CSSEGISandData/COVID-19).
+- First data entry is 2020-01-22, last one is 2023-03-09.
+- Hosting the GraphQL API honestly isn't very valuable now as the data isn't updated anymore and the entire cluster is
+  available below.
+- Adding support for 3 new computed fields (in the relevant collections) that were not in the schemas previously:
+    - confirmed_daily
+    - deaths_daily
+    - recovered_daily
+
 ## Introduction
 
-Recently, we built the [MongoDB COVID-19 Open Data project](/article/johns-hopkins-university-covid-19-data-atlas) using the [dataset from Johns Hopkins University](https://github.com/CSSEGISandData/COVID-19/) (JHU).
+Recently, we built the [MongoDB COVID-19 Open Data project](https://www.mongodb.com/developer/products/atlas/johns-hopkins-university-covid-19-data-atlas/) using
+the [dataset from Johns Hopkins University](https://github.com/CSSEGISandData/COVID-19/) (JHU).
 
-It's a great dataset for education purposes and for pet projects. The MongoDB Atlas cluster is freely accessible using the user `readonly` and the password `readonly` using the connection string:
+It's a great dataset for education purposes and for pet projects. The MongoDB Atlas cluster is freely accessible using
+the user `readonly` and the password `readonly` using the connection string:
 
 ``` none
 mongodb+srv://readonly:readonly@covid-19.hip2i.mongodb.net/covid19
 ```
 
->
->
->This cluster contains 2 databases: `covid19` and `covid19jhu`. Only the first one will be exposed with this GraphQL API. The second one contains the unprocessed raw data from JHU's CSV files. Learn about the databases and collection in [the dedicated blog post](/article/johns-hopkins-university-covid-19-data-atlas).
->
->
+> Learn about the databases and collection in [the dedicated blog post](https://www.mongodb.com/developer/products/atlas/johns-hopkins-university-covid-19-data-atlas/).
 
-You can use this cluster to build your application, but I also set up a GraphQL API using [MongoDB Realm](https://www.mongodb.com/realm) to expose this data for you.
+You can use this cluster to build your application, but I also set up a GraphQL API
+using [MongoDB App Services](https://www.mongodb.com/products/platform/atlas-app-services) to expose this data for you.
 
-In this blog post, I will first show you how to access our GraphQL endpoint securely. Then we will have a look at the documentation together to build out a variety of GraphQL queries to access all sorts of information in our dataset - all against a single API endpoint.  Learning how to to use filters and request only specific fields in our data will help optimize the performance of your applications - by bringing you exactly the data you want - nothing more, nothing less.
+In this blog post, I will first show you how to access our GraphQL endpoint securely. Then we will have a look at the
+documentation together to build out a variety of GraphQL queries to access all sorts of information in our dataset - all
+against a single API endpoint. Learning how to use filters and request only specific fields in our data will help
+optimize the performance of your applications - by bringing you exactly the data you want - nothing more, nothing less.
 
 <figure align="center">
     <img
@@ -43,27 +60,31 @@ In this blog post, I will first show you how to access our GraphQL endpoint secu
     />
 </figure>
 
-
 ## Prerequisites
 
--   Command line and [cURL](https://en.wikipedia.org/wiki/CURL) - which I'm using here for the sake of simplicity.
--   Or any other tool which handles HTTP queries. I also tested to run the following queries with [Postman](https://www.postman.com/), and it works great.
-
+- Command line and [cURL](https://en.wikipedia.org/wiki/CURL) - which I'm using here for the sake of simplicity.
+- Or any other tool which handles HTTP queries. I also tested to run the following queries
+  with [Postman](https://www.postman.com/), and it works great.
 
 ## COVID-19 GraphQL API
 
-
 ### Get an Access Token
 
-I used [MongoDB Realm](https://www.mongodb.com/realm) to create this [GraphQL](https://graphql.org/) API. Since MongoDB Realm is secure by default, only authenticated queries can be made. Yet since I want to keep this service as open as possible, I simply used the [Anonymous Authentication](https://docs.mongodb.com/realm/authentication/anonymous/) offered by MongoDB Realm.
+I used [MongoDB App Services](https://www.mongodb.com/docs/atlas/app-services/) to create this [GraphQL](https://graphql.org/) API. Since MongoDB
+App Services is secure by default, only authenticated queries can be made. Yet since I want to keep this service as open as
+possible, I simply used the [Anonymous Authentication](https://www.mongodb.com/docs/atlas/app-services/authentication/anonymous/) offered
+by MongoDB App Services.
 
-So now, all you need to retrieve an access token is the [MongoDB Realm Application ID](https://docs.mongodb.com/realm/get-started/find-your-app-id/) — or `APP_ID`, for short — of my MongoDB Realm application:
+So now, all you need to retrieve an access token is
+the [Application ID](https://www.mongodb.com/docs/atlas/app-services/apps/metadata/#find-your-app-id) — or `APP_ID`, for
+short — of my MongoDB App Services application:
 
 ``` none
 covid-19-qppza
 ```
 
-And [the API to authenticate HTTP client request](https://docs.mongodb.com/realm/reference/authenticate-http-client-requests/), which is:
+And [the API to authenticate HTTP client request](https://www.mongodb.com/docs/atlas/app-services/data-api/authenticate/),
+which is:
 
 ``` bash
 curl -X POST 'https://realm.mongodb.com/api/client/v2.0/app/<APP_ID>/auth/providers/anon-user/login'
@@ -86,18 +107,27 @@ If you execute this query in your favorite shell, you will receive a JSON answer
 }
 ```
 
-Access tokens expire 30 minutes after MongoDB Realm grants them. When an access token expires, you can request a new one using the same API, or you can [get a new one using the refresh token](https://docs.mongodb.com/realm/reference/authenticate-http-client-requests/#refresh-a-client-api-access-token). Although it's often just easier to request a new one.
+Access tokens expire 30 minutes after MongoDB App Services grants them. When an access token expires, you can request a new one
+using the same API, or you
+can [get a new one using the refresh token](https://www.mongodb.com/docs/atlas/app-services/data-api/authenticate/#refresh-a-client-api-access-token).
+Although it's often just easier to request a new one.
 
 ### Query the GraphQL API
 
-Once you have the token, you can start browsing the [GraphQL API documentation](https://covid-19-qppza.mongodbstitch.com/) that I generated with [GraphDoc](https://github.com/2fd/graphdoc#readme) and build your first query.
+Once you have the token, you can start browsing
+the [GraphQL API documentation](https://covid-19-qppza.mongodbstitch.com/) that I generated
+with [GraphDoc](https://github.com/2fd/graphdoc#readme) and build your first query.
 
-Five collections are available in this GraphQL API, and you can learn more about each one of them [in our documentation](https://github.com/mongodb-developer/open-data-covid-19#databases-and-collections).  Each have a "singular" query which can be used to retrieve a single document and a "plural" one to retrieve a list of documents. As an exception, the metadata collection contains only a single document so it offers no "plural" query.
+Five collections are available in this GraphQL API, and you can learn more about each one of
+them [in our documentation](https://github.com/mongodb-developer/open-data-covid-19#databases-and-collections). Each
+have a "singular" query which can be used to retrieve a single document and a "plural" one to retrieve a list of
+documents. As an exception, the metadata collection contains only a single document, so it offers no "plural" query.
 
-You can see all the possible queries in [the "query" page in the documentation](https://covid-19-qppza.mongodbstitch.com/query.doc.html), but I have also summarized them in the following table:
+You can see all the possible queries
+in [the "query" page in the documentation](https://covid-19-qppza.mongodbstitch.com/query.doc.html), but I have also
+summarized them in the following table:
 
 ##### GraphQL API
-
 
 <table style="
         border: 1px solid #B8C4C2;
@@ -115,7 +145,7 @@ You can see all the possible queries in [the "query" page in the documentation](
     <tbody style="border: inherit" valign="top">
         <tr style="border: inherit">
             <td style="border: inherit; padding: 10px">
-                <a style="color: #f9fbfa;" href="https://github.com/mongodb-developer/open-data-covid-19#collection-metadata">metadata</a>
+                <a href="https://github.com/mongodb-developer/open-data-covid-19#collection-metadata">metadata</a>
             </td>
             <td style="border: inherit; padding: 10px">
                 <ul>
@@ -124,21 +154,21 @@ You can see all the possible queries in [the "query" page in the documentation](
             </td>
             <td style="border: inherit; padding: 10px">
                 <ul>
-                    <li>_id</li>
-                    <li>countries</li>
-                    <li>states</li>
-                    <li>states_us</li>
-                    <li>counties</li>
-                    <li>iso3s</li>
-                    <li>uids</li>
-                    <li>first_date</li>
-                    <li>last_date</li>
+                  <li>_id: String</li>
+                  <li>counties: [String]</li>
+                  <li>countries: [String]</li>
+                  <li>first_date: DateTime</li>
+                  <li>iso3s: [String]</li>
+                  <li>last_date: DateTime</li>
+                  <li>states: [String]</li>
+                  <li>states_us: [String]</li>
+                  <li>uids: [Int]</li>
                 </ul>
             </td>
         </tr>
         <tr style="border: inherit">
             <td style="border: inherit; padding: 10px">
-                <a style="color: #f9fbfa;" href="https://github.com/mongodb-developer/open-data-covid-19#collection-countries_summary">countries_summary</a>
+                <a href="https://github.com/mongodb-developer/open-data-covid-19#collection-countries_summary">countries_summary</a>
             </td>
             <td style="border: inherit; padding: 10px">
                 <ul>
@@ -148,25 +178,28 @@ You can see all the possible queries in [the "query" page in the documentation](
             </td>
             <td style="border: inherit; padding: 10px">
                 <ul>
-                    <li>_id</li>
-                    <li>combined_names</li>
-                    <li>confirmed</li>
-                    <li>country</li>
-                    <li>country_codes</li>
-                    <li>country_iso2s</li>
-                    <li>country_iso3s</li>
-                    <li>date</li>
-                    <li>deaths</li>
-                    <li>population</li>
-                    <li>recovered</li>
-                    <li>states</li>
-                    <li>uids</li>
+                  <li>_id: ObjectId</li>
+                  <li>combined_names: [String]</li>
+                  <li>confirmed: Int</li>
+                  <li>confirmed_daily: Int</li>
+                  <li>country: String</li>
+                  <li>country_codes: [Int]</li>
+                  <li>country_iso2s: [String]</li>
+                  <li>country_iso3s: [String]</li>
+                  <li>date: DateTime</li>
+                  <li>deaths: Int</li>
+                  <li>deaths_daily: Int</li>
+                  <li>population: Int</li>
+                  <li>recovered: Int</li>
+                  <li>recovered_daily: Int</li>
+                  <li>states: [String]</li>
+                  <li>uids: [Int]</li>
                </ul>
             </td>
         </tr>
         <tr style="border: inherit">
             <td style="border: inherit; padding: 10px">
-                <a style="color: #f9fbfa;" href="https://github.com/mongodb-developer/open-data-covid-19#collection-global">global</a>
+                <a href="https://github.com/mongodb-developer/open-data-covid-19#collection-global">global</a>
             </td>
             <td style="border: inherit; padding: 10px">
                 <ul>
@@ -176,55 +209,29 @@ You can see all the possible queries in [the "query" page in the documentation](
             </td>
             <td style="border: inherit; padding: 10px">
                 <ul>
-                    <li>_id</li>
-                    <li>combined_name</li>
-                    <li>confirmed</li>
-                    <li>country</li>
-                    <li>country_code</li>
-                    <li>country_iso2</li>
-                    <li>country_iso3</li>
-                    <li>date</li>
-                    <li>deaths</li>
-                    <li>loc { type coordinates }</li>
-                    <li>population</li>
-                    <li>recovered</li>
-                    <li>state</li>
-                    <li>uid</li>
+                  <li>_id: ObjectId</li>
+                  <li>combined_name: String</li>
+                  <li>confirmed: Int</li>
+                  <li>confirmed_daily: Int</li>
+                  <li>country: String</li>
+                  <li>country_code: Int</li>
+                  <li>country_iso2: String</li>
+                  <li>country_iso3: String</li>
+                  <li>date: DateTime</li>
+                  <li>deaths: Int</li>
+                  <li>deaths_daily: Int</li>
+                  <li>loc: GlobalLoc</li>
+                  <li>population: Int</li>
+                  <li>recovered: Int</li>
+                  <li>recovered_daily: Int</li>
+                  <li>state: String</li>
+                  <li>uid: Int</li>
                </ul>
             </td>
         </tr>
-       <tr style="border: inherit">
+        <tr style="border: inherit">
             <td style="border: inherit; padding: 10px">
-                <a style="color: #f9fbfa;" href="https://github.com/mongodb-developer/open-data-covid-19#collection-global">global</a>
-            </td>
-            <td style="border: inherit; padding: 10px">
-                <ul>
-                    <li>global</li>
-                    <li>globals</li>
-                </ul>
-            </td>
-            <td style="border: inherit; padding: 10px">
-                <ul>
-                    <li>_id</li>
-                    <li>combined_name</li>
-                    <li>confirmed</li>
-                    <li>country</li>
-                    <li>country_code</li>
-                    <li>country_iso2</li>
-                    <li>country_iso3</li>
-                    <li>date</li>
-                    <li>deaths</li>
-                    <li>loc { type coordinates }</li>
-                    <li>population</li>
-                    <li>recovered</li>
-                    <li>state</li>
-                    <li>uid</li>
-               </ul>
-            </td>
-        </tr>
-       <tr style="border: inherit">
-            <td style="border: inherit; padding: 10px">
-                <a style="color: #f9fbfa;" href="https://github.com/mongodb-developer/open-data-covid-19#collection-global_and_us">global_and_us</a>
+                <a href="https://github.com/mongodb-developer/open-data-covid-19#collection-global_and_us">global_and_us</a>
             </td>
             <td style="border: inherit; padding: 10px">
                 <ul>
@@ -234,27 +241,31 @@ You can see all the possible queries in [the "query" page in the documentation](
             </td>
             <td style="border: inherit; padding: 10px">
                 <ul>
-                    <li>_id</li>
-                    <li>combined_name</li>
-                    <li>confirmed</li>
-                    <li>country</li>
-                    <li>country_code</li>
-                    <li>country_iso2</li>
-                    <li>country_iso3</li>
-                    <li>county</li>
-                    <li>date</li>
-                    <li>deaths</li>
-                    <li>fips</li>
-                    <li>loc { type coordinates }</li>
-                    <li>population</li>
-                    <li>recovered</li>
-                    <li>uid</li>
+                  <li>_id: ObjectId</li>
+                  <li>combined_name: String</li>
+                  <li>confirmed: Int</li>
+                  <li>confirmed_daily: Int</li>
+                  <li>country: String</li>
+                  <li>country_code: Int</li>
+                  <li>country_iso2: String</li>
+                  <li>country_iso3: String</li>
+                  <li>county: String</li>
+                  <li>date: DateTime</li>
+                  <li>deaths: Int</li>
+                  <li>deaths_daily: Int</li>
+                  <li>fips: Int</li>
+                  <li>loc: Global_and_uLoc</li>
+                  <li>population: Int</li>
+                  <li>recovered: Int</li>
+                  <li>recovered_daily: Int</li>
+                  <li>state: String</li>
+                  <li>uid: Int</li>
                </ul>
             </td>
         </tr>
        <tr style="border: inherit">
             <td style="border: inherit; padding: 10px">
-                <a style="color: #f9fbfa;" href="https://github.com/mongodb-developer/open-data-covid-19#collection-us_only">us_only</a>
+                <a href="https://github.com/mongodb-developer/open-data-covid-19#collection-us_only">us_only</a>
             </td>
             <td style="border: inherit; padding: 10px">
                 <ul>
@@ -264,36 +275,37 @@ You can see all the possible queries in [the "query" page in the documentation](
             </td>
             <td style="border: inherit; padding: 10px">
                 <ul>
-                    <li>_id</li>
-                    <li>combined_name</li>
-                    <li>confirmed</li>
-                    <li>country</li>
-                    <li>country_code</li>
-                    <li>country_iso2</li>
-                    <li>country_iso3</li>
-                    <li>county</li>
-                    <li>date</li>
-                    <li>deaths</li>
-                    <li>fips</li>
-                    <li>loc { type coordinates }</li>
-                    <li>population</li>
-                    <li>state</li>
-                    <li>uid</li>
+                  <li>_id: ObjectId</li>
+                  <li>combined_name: String</li>
+                  <li>confirmed: Int</li>
+                  <li>confirmed_daily: Int</li>
+                  <li>country: String</li>
+                  <li>country_code: Int</li>
+                  <li>country_iso2: String</li>
+                  <li>country_iso3: String</li>
+                  <li>county: String</li>
+                  <li>date: DateTime</li>
+                  <li>deaths: Int</li>
+                  <li>deaths_daily: Int</li>
+                  <li>fips: Int</li>
+                  <li>loc: Us_onlyLoc</li>
+                  <li>population: Int</li>
+                  <li>state: String</li>
+                  <li>uid: Int</li>
                </ul>
             </td>
         </tr>
     </tbody>
 </table>
 
->
->
->Find all the details in the [GraphQL documentation](https://covid-19-qppza.mongodbstitch.com/query.doc.html).  To explore this data and the flexibility of GraphQL, let's build out three example queries.
->
->
+> Find all the details in the [GraphQL documentation](https://covid-19-qppza.mongodbstitch.com/query.doc.html). To
+> explore this data and the flexibility of GraphQL, let's build out three example queries.
 
 #### Query 1. The Metadata Collection
 
-Let's first query the [metadata collection](https://github.com/mongodb-developer/open-data-covid-19#collection-metadata).  This collection contains only one single document listing all the values (obtained with mongodb distinct function) for the major fields.
+Let's first query
+the [metadata collection](https://github.com/mongodb-developer/open-data-covid-19#collection-metadata). This collection
+contains only one single document listing all the values (obtained with mongodb distinct function) for the major fields.
 
 Here is the GraphQL query:
 
@@ -313,7 +325,8 @@ query {
 }
 ```
 
-Now let's build an HTTP query with it. Don't forget to replace the `ACCESS_TOKEN` in the query with your own valid token.
+Now let's build an HTTP query with it. Don't forget to replace the `ACCESS_TOKEN` in the query with your own valid
+token.
 
 ``` bash
 curl 'https://realm.mongodb.com/api/client/v2.0/app/covid-19-qppza/graphql' \
@@ -322,7 +335,8 @@ curl 'https://realm.mongodb.com/api/client/v2.0/app/covid-19-qppza/graphql' \
      --data-raw '{"query": "query { metadatum { _id countries states states_us counties iso3s uids first_date last_date } }" }'
 ```
 
-This will answer a [JSON document](https://covid-19-qppza.mongodbstitch.com/metadatum.doc.html) which will help you populate your filters for the other queries:
+This will answer a [JSON document](https://covid-19-qppza.mongodbstitch.com/metadatum.doc.html) which will help you
+populate your filters for the other queries:
 
 ``` json
 {"data":
@@ -344,13 +358,16 @@ This will answer a [JSON document](https://covid-19-qppza.mongodbstitch.com/meta
 
 #### Query 2. The `countries_summary` Collection
 
-Now let's refine our data query even further. We want to see how France is trending for the last week, so we will use a query filter:
+Now let's refine our data query even further. We want to see how France is trending for the last week, so we will use a
+query filter:
 
 ``` javascript
 {country: "France", date_gte: "2020-09-16T00:00:00Z"}
 ```
 
-Plus we will sort the dates in descending order with the most recent dates first. Remember with GraphQL, we can request as many or as few data fields as we want for the client. In this example, we'll only ask for the number of confirmed cases, deaths, and recoveries, along with the date. The final query with this filter and those specific fields is:
+Plus we will sort the dates in descending order with the most recent dates first. Remember with GraphQL, we can request
+as many or as few data fields as we want for the client. In this example, we'll only ask for the number of confirmed
+cases, deaths, and recoveries, along with the date. The final query with this filter and those specific fields is:
 
 ``` javascript
 query {
@@ -480,22 +497,30 @@ Results:
 
 ## But How Did I Build This GraphQL API?
 
-Simple and easy, I used the [MongoDB Realm GraphQL API](https://docs.mongodb.com/realm/graphql/) which just took me a few clicks.
+Simple and easy, I used the [MongoDB Atlas GraphQL API](https://www.mongodb.com/docs/atlas/app-services/graphql/) which just took me a
+few clicks.
 
-If you want to build this very same service using this dataset, check out [our blog](/article/johns-hopkins-university-covid-19-data-atlas) which explains the dataset's content and how you can grab it. Then, have a look at Nic's [blog post](/how-to/graphql-support-atlas-stitch) which explains how to set up a GraphQL API using MongoDB Realm.
+If you want to build this very same service using this dataset, check
+out [our blog](https://www.mongodb.com/developer/products/atlas/johns-hopkins-university-covid-19-data-atlas/) which explains the dataset's content and how you
+can grab it. Then, have a look at Nic's [blog post](https://www.mongodb.com/developer/products/atlas/graphql-support-atlas-stitch/) which explains how to set up a
+GraphQL API using MongoDB App Services.
 
-You want to improve your knowledge even more around MongoDB and GraphQL?  Then you must read the blog post [GraphQL: The Easy Way to Do the Hard Stuff](/how-to/graphql-easy) from Karen and Brian.
+You want to improve your knowledge even more around MongoDB and GraphQL? Then you must read the blog
+post [GraphQL: The Easy Way to Do the Hard Stuff](https://www.mongodb.com/developer/products/realm/graphql-easy/) from Karen and Brian.
 
 ## Wrap-Up
 
-MongoDB made setting up a GraphQL API really easy. And this GraphQL API made querying our Covid19 dataset to gain insight even easier. We update this data every hour, and we hope you will enjoy using this data to explore and learn.
+MongoDB made setting up a GraphQL API really easy. And this GraphQL API made querying our Covid19 dataset to gain
+insight even easier. We update this data every hour (not anymore, see News section), and we hope you will enjoy using this data to explore and learn.
 
->
->
->Are you trying to help solve this pandemic in any way? Remember that if you are trying to build an application that helps to detect, understand, or stop the spread of the COVID-19 virus, we have a [FREE MongoDB Atlas credit program](https://www.mongodb.com/blog/post/helping-developers-tackle-covid19) that can help you scale and hopefully solve this global pandemic.
->
->
+> Are you trying to help solve this pandemic in any way? Remember that if you are trying to build an application that
+> helps to detect, understand, or stop the spread of the COVID-19 virus, we have
+> a [FREE MongoDB Atlas credit program](https://www.mongodb.com/blog/post/helping-developers-tackle-covid19) that can help
+> you scale and hopefully solve this global pandemic.
 
-I truly hope you will be able to build something amazing with this GraphQL API. Even if it won't save the world from the COVID-19 pandemic, I hope it will be a great source of motivation and training for your next pet project.
+I truly hope you will be able to build something amazing with this GraphQL API. Even if it won't save the world from the
+COVID-19 pandemic, I hope it will be a great source of motivation and training for your next pet project.
 
-[Send me a tweet](https://twitter.com/MBeugnet) or ping me in our [Community Forum](https://developer.mongodb.com/community/forums/) with your project using this API. I will definitely check it out!
+[Send me a tweet](https://twitter.com/MBeugnet) or ping me in
+our [Community Forum](https://developer.mongodb.com/community/forums/) with your project using this API. I will
+definitely check it out!
