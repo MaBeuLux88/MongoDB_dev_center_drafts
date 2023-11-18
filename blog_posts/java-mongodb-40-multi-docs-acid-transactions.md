@@ -1,10 +1,15 @@
 ## Introduction
-MongoDB 4.0 adds support for multi-document ACID transactions.
 
-But wait... Does that mean MongoDB did not support transactions until now?
-No, actually MongoDB has always supported transactions in the form of single document transactions. MongoDB 4.0 extends these transactional guarantees across multiple documents, multiple statements, multiple collections, and multiple databases. What good would a database be without any form of transactional data integrity guarantee?
+MongoDB 4.0 (June 2018!) added support for multi-document ACID transactions.
 
-Before we dive into this blog post, you can find all the code and try multi-document ACID transactions [here](https://github.com/MaBeuLux88/mongodb-4.0-demos).
+But wait... Does that mean MongoDB did not support transactions before that?
+No, actually MongoDB has always supported transactions in the form of single document transactions.
+
+MongoDB 4.0 extends these transactional guarantees across multiple documents, multiple statements, multiple collections,
+and multiple databases. What good would a database be without any form of transactional data integrity guarantee?
+
+Before we dive into this post, you can find all the code and try multi-document ACID
+transactions [here](https://github.com/mongodb-developer/java-quick-start).
 
 ## Quick start
 
@@ -13,92 +18,107 @@ Before we dive into this blog post, you can find all the code and try multi-docu
 Start a single node MongoDB ReplicaSet in version 4.0.0 minimum on localhost, port 27017.
 
 If you use Docker:
- * You can use `start-mongo.sh`.
- * When you are done, you can use `stop-mongo.sh`.
- * If you want to connect to MongoDB with the Mongo Shell, you can use `connect-mongo.sh`.
+
+* You can use `start-mongo.sh`.
+* When you are done, you can use `stop-mongo.sh`.
+* If you want to connect to MongoDB with the Mongo Shell, you can use `connect-mongo.sh`.
 
 If you prefer to start mongod manually:
 
- * `mkdir /tmp/data && mongod --dbpath /tmp/data --replSet rs`
- * `mongo --eval 'rs.initiate()'`
-
+* `mkdir /tmp/data && mongod --dbpath /tmp/data --replSet rs`
+* `mongo --eval 'rs.initiate()'`
 
 ### Step 2: Start Java
+
 This demo contains two main programs: `ChangeStreams.java` and `Transactions.java`.
 
-* Change Steams allow you to be notified of any data changes within a MongoDB collection or database. 
+* Change Steams allow you to be notified of any data changes within a MongoDB collection or database.
 * The Transaction process is the demo itself.
 
 You need two shells to run them.
 
 If you use Docker:
 
-First shell: 
+First shell:
+
 ```
 ./compile-docker.sh
 ./change-streams-docker.sh
 ```
 
 Second shell:
+
 ```
 ./transactions-docker.sh
 ```
 
-If you do not use Docker, you will need to install Maven 3.5.X and a JDK 10 (or JDK 8 minimum but you will need to update the Java versions in the pom.xml):
+If you do not use Docker, you will need to install Maven 3.5.X and a JDK 10 (or JDK 8 minimum, but you will need to
+update the Java versions in the pom.xml):
 
-First shell: 
+First shell:
+
 ```
 ./compile.sh
 ./change-streams.sh
 ```
 
 Second shell:
+
 ```
 ./transactions.sh
 ```
 
-Let’s compare our existing single document transactions with MongoDB 4.0’s ACID compliant multi-document transactions and see how we can leverage this new feature with Java.
+Let’s compare our existing single document transactions with MongoDB 4.0’s ACID compliant multi-document transactions
+and see how we can leverage this new feature with Java.
 
 ## Prior to MongoDB 4.0
 
-Even in MongoDB 3.6 and earlier, every write operation is represented as a **transaction scoped to the level of an individual document** in the storage layer. Because the document model brings together related data that would otherwise be modeled across separate parent-child tables in a tabular schema, MongoDB’s atomic single-document operations provide transaction semantics that meet the data integrity needs of the majority of applications.
+Even in MongoDB 3.6 and earlier, every write operation is represented as a **transaction scoped to the level of an
+individual document** in the storage layer. Because the document model brings together related data that would otherwise
+be modeled across separate parent-child tables in a tabular schema, MongoDB’s atomic single-document operations provide
+transaction semantics that meet the data integrity needs of the majority of applications.
 
-Every typical write operation modifying multiple documents actually happens in several independent transactions: one for each document.
+Every typical write operation modifying multiple documents actually happens in several independent transactions: one for
+each document.
 
-Let’s take an example with a very simple stock management application. 
+Let’s take an example with a very simple stock management application.
 
-First of all, I need a MongoDB Replica Set so please follow the instructions given above to start MongoDB.
+First of all, I need a [MongoDB Replica Set](https://www.mongodb.com/docs/manual/replication/) so please follow the
+instructions given above to start MongoDB.
 
 Now let’s insert the following documents into a `product` collection:
 
 ```js
-MongoDB Enterprise rs:PRIMARY> db.product.insertMany([
+RS [direct: primary] test> db.product.insertMany([
     { "_id" : "beer", "price" : NumberDecimal("3.75"), "stock" : NumberInt(5) }, 
     { "_id" : "wine", "price" : NumberDecimal("7.5"), "stock" : NumberInt(3) }
 ])
 ```
 
-Let’s imagine there is a sale on and we want to offer our customers a 20% discount on all our products.
+Let’s imagine there is a sale on, and we want to offer our customers a 20% discount on all our products.
 
-But before applying this discount, we want to monitor when these operations are happening in MongoDB with Change Streams.
+But before applying this discount, we want to monitor when these operations are happening in MongoDB with [Change
+Streams](https://www.mongodb.com/docs/manual/changeStreams/).
 
-Execute the following in Mongo Shell:
+Execute the following in a [MongoDB Shell](https://www.mongodb.com/docs/mongodb-shell/):
 
 ```js
 cursor = db.product.watch([{$match: {operationType: "update"}}]);
-while (!cursor.isExhausted()) {
-  if (cursor.hasNext()) {
-    print(tojson(cursor.next()));
+while (!cursor.isClosed()) {
+  let next = cursor.tryNext()
+  while (next !== null) {
+    printjson(next);
+    next = cursor.tryNext()
   }
 }
 ```
 
-Keep this shell on the side, open another Mongo Shell and apply the discount:
+Keep this shell on the side, open another MongoDB Shell and apply the discount:
 
 ```js
-PRIMARY> db.product.updateMany({}, {$mul: {price:0.8}})
+RS [direct: primary] test> db.product.updateMany({}, {$mul: {price:0.8}})
 { "acknowledged" : true, "matchedCount" : 2, "modifiedCount" : 2 }
-PRIMARY> db.product.find().pretty()
+RS [direct: primary] test> db.product.find().pretty()
 {
 	"_id" : "beer",
 	"price" : NumberDecimal("3.00000000000000000"),
@@ -111,61 +131,68 @@ PRIMARY> db.product.find().pretty()
 }
 ```
 
-As you can see, both documents were updated with a single command line but not in a single transaction. 
+As you can see, both documents were updated with a single command line but not in a single transaction.
 Here is what we can see in the Change Stream shell:
 
 ```js
 {
-	"_id" : {
-		"_data" : "825B4637290000000129295A1004374DC58C611E4C8DA4E5EDE9CF309AC5463C5F6964003C62656572000004"
-	},
-	"operationType" : "update",
-	"clusterTime" : Timestamp(1531328297, 1),
-	"ns" : {
-		"db" : "test",
-		"coll" : "product"
-	},
-	"documentKey" : {
-		"_id" : "beer"
-	},
-	"updateDescription" : {
-		"updatedFields" : {
-			"price" : NumberDecimal("3.00000000000000000")
-		},
-		"removedFields" : [ ]
-	}
+  _id: {
+    _data: '8265580539000000012B042C0100296E5A1004A7F55A5B35BD4C7DB2CD56C6CFEA9C49463C6F7065726174696F6E54797065003C7570646174650046646F63756D656E744B657900463C5F6964003C6265657200000004'
+  },
+  operationType: 'update',
+  clusterTime: Timestamp({ t: 1700267321, i: 1 }),
+  wallTime: ISODate("2023-11-18T00:28:41.601Z"),
+  ns: {
+    db: 'test',
+    coll: 'product'
+  },
+  documentKey: {
+    _id: 'beer'
+  },
+  updateDescription: {
+    updatedFields: {
+      price: Decimal128("3.00000000000000000")
+    },
+    removedFields: [],
+    truncatedArrays: []
+  }
 }
 {
-	"_id" : {
-		"_data" : "825B4637290000000229295A1004374DC58C611E4C8DA4E5EDE9CF309AC5463C5F6964003C77696E65000004"
-	},
-	"operationType" : "update",
-	"clusterTime" : Timestamp(1531328297, 2),
-	"ns" : {
-		"db" : "test",
-		"coll" : "product"
-	},
-	"documentKey" : {
-		"_id" : "wine"
-	},
-	"updateDescription" : {
-		"updatedFields" : {
-			"price" : NumberDecimal("6.0000000000000000")
-		},
-		"removedFields" : [ ]
-	}
+  _id: {
+    _data: '8265580539000000022B042C0100296E5A1004A7F55A5B35BD4C7DB2CD56C6CFEA9C49463C6F7065726174696F6E54797065003C7570646174650046646F63756D656E744B657900463C5F6964003C77696E6500000004'
+  },
+  operationType: 'update',
+  clusterTime: Timestamp({ t: 1700267321, i: 2 }),
+  wallTime: ISODate("2023-11-18T00:28:41.601Z"),
+  ns: {
+    db: 'test',
+    coll: 'product'
+  },
+  documentKey: {
+    _id: 'wine'
+  },
+  updateDescription: {
+    updatedFields: {
+      price: Decimal128("6.0000000000000000")
+    },
+    removedFields: [],
+    truncatedArrays: []
+  }
 }
 ```
 
-As you can see the cluster times (see the `clusterTime` key) of the two operations are different: the operations occurred during the same second but the counter of the timestamp has been incremented by one.
+As you can see the cluster times (see the `clusterTime` key) of the two operations are different: the operations
+occurred during the same second but the counter of the timestamp has been incremented by one.
 
-Thus here each document is updated one at a time and even if this happens really fast, someone else could read the documents while the update is running and see only one of the two products with the discount.
+Thus, here each document is updated one at a time, and even if this happens really fast, someone else could read the
+documents while the update is running and see only one of the two products with the discount.
 
-Most of the time, it is something you can tolerate in your MongoDB database because, as much as possible, we try to embed tightly linked, or related data in the same document.
-As a result, two updates on the same document happen within a single transaction : 
+Most of the time, it is something you can tolerate in your MongoDB database because, as much as possible, we try to
+embed tightly linked, or related data in the same document.
+As a result, two updates on the same document happen within a single transaction:
 
 ```js
-PRIMARY> db.product.update({_id: "wine"},{$inc: {stock:1}, $set: {description : "It’s the best wine on Earth"}})
+RS [direct: primary] test> db.product.update({_id: "wine"},{$inc: {stock:1}, $set: {description : "It’s the best wine on Earth"}})
 WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
 PRIMARY> db.product.findOne({_id: "wine"})
 {
@@ -176,27 +203,35 @@ PRIMARY> db.product.findOne({_id: "wine"})
 }
 ```
 
-However, sometimes, you cannot model all of your related data in a single document, and there are a lot of valid reasons for choosing not to embed documents.
+However, sometimes, you cannot model all of your related data in a single document, and there are a lot of valid reasons
+for choosing not to embed documents.
 
 ## MongoDB 4.0 with multi-document ACID transactions
- 
-Multi-document <a href="https://www.mongodb.com/basics/acid-transactions">ACID transactions</a> in MongoDB are very similar to what you probably already know from traditional relational databases.
 
-MongoDB’s transactions are a conversational set of related operations that must atomically commit or fully rollback with all-or-nothing execution.
+Multi-document [ACID transactions](https://www.mongodb.com/basics/acid-transactions) in MongoDB are very
+similar to what you probably already know from traditional relational databases.
 
-Transactions are used to make sure operations are atomic even across multiple collections or databases. Thus, with snapshot isolation reads, another user can only see all the operations or none of them.
+MongoDB’s transactions are a conversational set of related operations that must atomically commit or fully rollback with
+all-or-nothing execution.
+
+Transactions are used to make sure operations are atomic even across multiple collections or databases. Thus, with
+snapshot isolation reads, another user can *only* see all the operations or none of them.
 
 Let’s now add a shopping cart to our example.
 
-For this example, 2 collections are required because we are dealing with 2 different business entities: the stock management and the shopping cart each client can create during shopping. The lifecycle of each document in these collections is different.
+For this example, 2 collections are required because we are dealing with 2 different business entities: the stock
+management and the shopping cart each client can create during shopping. The lifecycle of each document in these
+collections is different.
 
-A document in the product collection represents an item I’m selling. This contains the current price of the product and the current stock. I created a POJO to represent it : Product.java. 
+A document in the product collection represents an item I’m selling. This contains the current price of the product and
+the current stock. I created a POJO to represent it : `Product.java`.
 
 ```js
 { "_id" : "beer", "price" : NumberDecimal("3"), "stock" : NumberInt(5) }
 ```
 
-A shopping cart is created when a client adds its first item in the cart and is removed when the client proceeds to checkout or leaves the website. I created a POJO to represent it : Cart.java.
+A shopping cart is created when a client adds its first item in the cart and is removed when the client proceeds to
+checkout or leaves the website. I created a POJO to represent it : `Cart.java`.
 
 ```js
 {
@@ -211,12 +246,16 @@ A shopping cart is created when a client adds its first item in the cart and is 
 }
 ```
 
-The challenge here resides in the fact that I cannot sell more than I possess: if I have 5 beers to sell, I cannot have more than 5 beers distributed across the different client carts.
+The challenge here resides in the fact that I cannot sell more than I possess: if I have 5 beers to sell, I cannot have
+more than 5 beers distributed across the different client carts.
 
-To ensure that, I have to make sure that the operation creating or updating the client cart is atomic with the stock update. That’s where the multi-document transaction comes into play.
-The transaction must fail in the case someone tries to buy something I do not have in my stock. I will add a constraint on the product stock:
+To ensure that, I have to make sure that the operation creating or updating the client cart is atomic with the stock
+update. That’s where the multi-document transaction comes into play.
+The transaction must fail in the case someone tries to buy something I do not have in my stock. I will add a constraint
+on the product stock:
 
 ```js
+db.product.drop()
 db.createCollection("product", {
    validator: {
       $jsonSchema: {
@@ -243,11 +282,12 @@ db.createCollection("product", {
 })
 ```
 
-> Node that this is already included in the Java code.
+> Note that this is already included in the Java code.
 
-To monitor our example, we are going to use MongoDB Change Streams that were introduced in MongoDB 3.6.
+To monitor our example, we are going to use MongoDB [Change Streams](https://www.mongodb.com/docs/manual/changeStreams/) that were introduced in MongoDB 3.6.
 
-In each of the threads of this process called `ChangeStreams.java`, I am going to monitor one of the 2 collections and print each operation with its associated cluster time.
+In each of the threads of this process called `ChangeStreams.java`, I am going to monitor one of the 2 collections and
+print each operation with its associated cluster time.
 
 ```java
 // package and imports
@@ -294,17 +334,24 @@ public class ChangeStreams {
 
     private static CreateCollectionOptions productJsonSchemaValidator() {
         return new CreateCollectionOptions().validationOptions(
-                new ValidationOptions().validationAction(ValidationAction.ERROR).validator(BsonDocument.parse(jsonSchema)));
+                new ValidationOptions().validationAction(ValidationAction.ERROR)
+                                       .validator(BsonDocument.parse(jsonSchema)));
     }
 }
 ```
 
 In this example we have 5 beers to sell.
-Alice wants to buy 2 beers but we are not going to use the new MongoDB 4.0 multi-document transactions for this. We will observe in the change streams two operations : one creating the cart and one updating the stock at 2 different cluster times.
 
-Then Alice adds 2 more beers in her cart and we are going to use a transaction this time. The result in the change stream will be 2 operations happening at the same cluster time.
+Alice wants to buy 2 beers, but we are **not** going to use a multi-document transactions for this. We will
+observe in the change streams two operations at 2 different cluster times:
+- one creating the cart
+- one updating the stock
 
-Finally, she will try to order 2 extra beers but the jsonSchema validator will fail the product update and result in a rollback. We will not see anything in the change stream.
+Then Alice adds 2 more beers in her cart, and we are going to use a transaction this time. The result in the change
+stream will be 2 operations happening at the same cluster time.
+
+Finally, she will try to order 2 extra beers but the jsonSchema validator will fail the product update and result in a
+rollback. We will not see anything in the change stream.
 Here is the `Transaction.java` source code:
 
 ```java
@@ -348,7 +395,8 @@ public class Transactions {
         printDatabaseState();
         System.out.println("#########  NO  TRANSACTION #########");
         System.out.println("Alice wants 2 beers.");
-        System.out.println("We have to create a cart in the 'cart' collection and update the stock in the 'product' collection.");
+        System.out.println(
+                "We have to create a cart in the 'cart' collection and update the stock in the 'product' collection.");
         System.out.println("The 2 actions are correlated but can not be executed on the same cluster time.");
         System.out.println("Any error blocking one operation could result in stock error or beer sale we don't own.");
         System.out.println("---------------------------------------------------------------------------");
@@ -444,10 +492,8 @@ public class Transactions {
     }
 
     private void printCarts(List<Cart> carts) {
-        if (carts.isEmpty())
-            System.out.println("No carts...");
-        else
-            carts.forEach(System.out::println);
+        if (carts.isEmpty()) System.out.println("No carts...");
+        else carts.forEach(System.out::println);
     }
 
     private void sleep() {
@@ -462,7 +508,7 @@ public class Transactions {
 }
 ```
 
-Here is the console of the Change Stream : 
+Here is the console of the Change Stream :
 
 ```
 $ ./change-streams.sh 
@@ -485,9 +531,12 @@ Timestamp{value=6570052764506783745, seconds=1529709614, inc=1} => Product{id='b
 Timestamp{value=6570052764506783745, seconds=1529709614, inc=1} => Cart{id='Alice', items=[Item{productId=beer, quantity=4, price=3}]}
 ```
 
-As you can see here, we only get four operations because the two last operations were never committed to the database, and therefore the change stream has nothing to show.
+As you can see here, we only get four operations because the two last operations were never committed to the database,
+and therefore the change stream has nothing to show.
 
-You can also note that the two first cluster times are different because we did not use a transaction for the two first operations, and the two last operations share the same cluster time because we used the new MongoDB 4.0 multi-document transaction system, and thus they are atomic.
+You can also note that the two first cluster times are different because we did not use a transaction for the two first
+operations, and the two last operations share the same cluster time because we used the multi-document
+transaction system, and thus they are atomic.
 
 Here is the console of the Transaction java process that sum up everything I said earlier.
 
@@ -545,12 +594,13 @@ Trying to update beer stock : -2 beers.
 Database state:
 Product{id='beer', stock=1, price=3}
 Cart{id='Alice', items=[Item{productId=beer, quantity=4, price=3}]}
-
 ```
+
 ## Next Steps
-Thanks for taking the time to read my post - I hope you found it useful and interesting.
-As a reminder, all the code is available [on this Github repository](https://github.com/MaBeuLux88/mongodb-4.0-demos) for you to experiment.
 
-If you are looking for a very simple way to get started with MongoDB, you can do that in just 5 clicks on our [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)  database service in the cloud.
+Thanks for taking the time to read my post. I hope you found it useful and interesting.
+As a reminder, all the code is available [on this GitHub repository](https://github.com/mongodb-developer/java-quick-start)
+for you to experiment.
 
-Also, multi-document ACID transactions is not the only new feature in MongoDB 4.0, so feel free to take a look at our free course on [MongoDB University M040: New Features and Tools in MongoDB 4.0](https://university.mongodb.com/courses/M040/about) and our [guide to what’s new in MongoDB 4.0](https://www.mongodb.com/collateral/mongodb-40-whats-new) where you can learn more about native type conversions, new visualization and analytics tools, and Kubernetes integration.
+If you are looking for a very simple way to get started with MongoDB, you can do that in just 5 clicks on
+our [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) database service in the cloud.
