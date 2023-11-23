@@ -1,14 +1,14 @@
 ## Introduction
 
-MongoDB 4.0 (released in June 2018) added support for multi-document ACID transactions.
+Introduced in June 2018 with MongoDB 4.0, multi-document ACID transactions are now supported.
 
 But wait... Does that mean MongoDB did not support transactions before that?
-No, actually MongoDB has always supported transactions in the form of single document transactions.
+No, MongoDB has consistently supported transactions, initially in the form of single-document transactions.
 
 MongoDB 4.0 extends these transactional guarantees across multiple documents, multiple statements, multiple collections,
 and multiple databases. What good would a database be without any form of transactional data integrity guarantee?
 
-Before we dive into this post, you can find all the code and try multi-document ACID
+Before delving into the details, you can access the code and experiment with multi-document ACID
 transactions [here](https://github.com/mongodb-developer/java-quick-start).
 
 ``` bash
@@ -38,8 +38,8 @@ docker run --rm -d -p 27017:27017 -h $(hostname) --name mongo mongo:7.0.3 --repl
 
 This demo contains two main programs: `ChangeStreams.java` and `Transactions.java`.
 
-* The `ChangeSteams` class allows you to be notified of any data changes within the two collections we are using in this
-  tutorial.
+* The `ChangeSteams` class enables you to receive notifications of any data changes within the two collections used in
+  this tutorial.
 * The `Transactions` class is the demo itself.
 
 You need two shells to run them.
@@ -181,7 +181,7 @@ documents while the update is running and see only one of the two products with 
 Most of the time, it is something you can tolerate in your MongoDB database because, as much as possible, we try to
 embed tightly linked, or related data in the same document.
 
-As a result, two updates on the same document happen within a single transaction:
+Consequently, two updates on the same document occur within a single transaction:
 
 ```js
 RS [direct: primary] test> db.product.updateOne({_id: "wine"},{$inc: {stock:1}, $set: {description : "It’s the best wine on Earth"}})
@@ -206,14 +206,14 @@ for choosing not to embed documents.
 
 ## MongoDB 4.0 with Multi-Document ACID Transactions
 
-Multi-document [ACID transactions](https://www.mongodb.com/basics/acid-transactions) in MongoDB are very
-similar to what you probably already know from traditional relational databases.
+Multi-document [ACID transactions](https://www.mongodb.com/basics/acid-transactions) in MongoDB closely resemble what
+you may already be familiar with in traditional relational databases.
 
 MongoDB’s transactions are a conversational set of related operations that must atomically commit or fully rollback with
 all-or-nothing execution.
 
-Transactions are used to make sure operations are atomic even across multiple collections or databases. Thus, with
-snapshot isolation reads, another user can *only* see all the operations or none of them.
+Transactions are used to make sure operations are atomic even across multiple collections or databases. Consequently,
+with snapshot isolation reads, another user can only observe either all the operations or none of them.
 
 Let’s now add a shopping cart to our example.
 
@@ -376,7 +376,8 @@ stream will be 2 operations happening at the same cluster time.
 Finally, she will try to order 2 extra beers but the jsonSchema validator will fail the product update (as there is only
 one in stock) and result in a
 rollback. We will not see anything in the change stream.
-Here is the `Transaction.java` source code:
+Below is the source code
+for [Transaction.java](https://github.com/mongodb-developer/java-quick-start/blob/master/src/main/java/com/mongodb/quickstart/transactions/Transactions.java):
 
 ```java
 package com.mongodb.quickstart.transactions;
@@ -636,5 +637,5 @@ As a reminder, all the code is
 available [on this GitHub repository](https://github.com/mongodb-developer/java-quick-start)
 for you to experiment.
 
-If you are looking for a very simple way to get started with MongoDB, you can do that in just 5 clicks on
-our [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) database service in the cloud.
+If you're seeking an easy way to begin with MongoDB, you can achieve that in just five clicks using
+our [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cloud database service.
