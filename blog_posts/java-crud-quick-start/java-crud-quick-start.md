@@ -272,7 +272,7 @@ can add the `mongodb.uri` system property into your IDE. Here is my configuratio
 Or if you prefer to use Maven in command line, here is the equivalent command line you can run in the root directory:
 
 ``` bash
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Connection" -Dmongodb.uri="mongodb+srv://username:password@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
+mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Connection" -Dmongodb.uri="mongodb+srv://username:password@cluster0-abcde.mongodb.net/test?w=majority"
 ```
 
 > Note: Don't forget the double quotes around the MongoDB URI to avoid surprises from your shell.
@@ -493,7 +493,7 @@ You can execute this class with the following Maven command line in the root dir
 more details). Don't forget the double quotes around the MongoDB URI to avoid surprises.
 
 ``` bash
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Create" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
+mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Create" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority"
 ```
 
 And here is the document I extracted from [MongoDB
@@ -774,7 +774,7 @@ your favorite IDE.
 Alternatively, you can use this Maven command line in your root project (where the `src` folder is):
 
 ``` bash
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Read" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
+mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Read" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority"
 ```
 
 The standard output should be:
@@ -1092,7 +1092,7 @@ want to run this code in your favorite IDE (see above for more details).
 Alternatively, you can use this Maven command line in your root project (where the `src` folder is):
 
 ``` bash
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Update" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
+mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Update" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority"
 ```
 
 The standard output should look like this:
@@ -1427,7 +1427,7 @@ want to run this code in your favorite IDE (see above for more details).
 Alternatively, you can use this Maven command line in your root project (where the `src` folder is):
 
 ``` bash
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Delete" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
+mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Delete" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority"
 ```
 
 The standard output should look like this:
