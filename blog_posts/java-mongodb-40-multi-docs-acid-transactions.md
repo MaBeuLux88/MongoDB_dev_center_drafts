@@ -11,6 +11,10 @@ and multiple databases. What good would a database be without any form of transa
 Before we dive into this post, you can find all the code and try multi-document ACID
 transactions [here](https://github.com/mongodb-developer/java-quick-start).
 
+``` bash
+git clone git@github.com:mongodb-developer/java-quick-start.git
+```
+
 ## Quick Start
 
 ### Requirements
