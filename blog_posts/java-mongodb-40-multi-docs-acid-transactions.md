@@ -218,8 +218,8 @@ with snapshot isolation reads, another user can only observe either all the oper
 Let’s now add a shopping cart to our example.
 
 For this example, 2 collections are required because we are dealing with 2 different business entities: the stock
-management and the shopping cart each client can create during shopping. The lifecycle of each document in these
-collections is different.
+management and the shopping cart each client can create during shopping. The life cycles of each document in these
+collections are different.
 
 A document in the product collection represents an item I’m selling. This contains the current price of the product and
 the current stock. I created a POJO to represent
@@ -364,7 +364,7 @@ public class ChangeStreams {
 
 In this example we have 5 beers to sell.
 
-Alice wants to buy 2 beers, but we are **not** going to use a multi-document transactions for this. We will
+Alice wants to buy 2 beers, but we are **not** going to use a multi-document transaction for this. We will
 observe in the change streams two operations at 2 different cluster times:
 
 - one creating the cart
@@ -437,7 +437,7 @@ public class Transactions {
                            #########  NO  TRANSACTION #########
                            Alice wants 2 beers.
                            We have to create a cart in the 'cart' collection and update the stock in the 'product' collection.
-                           The 2 actions are correlated but can not be executed on the same cluster time.
+                           The 2 actions are correlated but can not be executed at the same cluster time.
                            Any error blocking one operation could result in stock error or a sale of beer that we can't fulfill as we have no stock.
                            ------------------------------------""");
         aliceWantsTwoBeers();
@@ -573,9 +573,9 @@ and therefore the change stream has nothing to show.
 - The second and third operations are the first 2 beers Alice adds to her cart *without* a multi-doc transaction. Notice
   that the two operations do *not* happen on the same cluster time.
 - The two last operations are the two additional beers Alice adds to her cart *with* a multi-doc transaction. Notice
-  that this time the two operations are atomic and they are happening exactly at the same cluster time.
+  that this time the two operations are atomic, and they are happening exactly at the same cluster time.
 
-Here is the console of the Transaction java process that sum up everything I said earlier.
+Here is the console of the Transaction java process that sums up everything I said earlier.
 
 ```
 Database state:
