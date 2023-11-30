@@ -8,14 +8,14 @@ No, MongoDB has consistently supported transactions, initially in the form of si
 MongoDB 4.0 extends these transactional guarantees across multiple documents, multiple statements, multiple collections,
 and multiple databases. What good would a database be without any form of transactional data integrity guarantee?
 
-Before delving into the details, you can access the code and experiment with multi-document ACID
-transactions [here](https://github.com/mongodb-developer/java-quick-start).
+Before delving into the details, you can [access the code](https://github.com/mongodb-developer/java-quick-start) and experiment with multi-document ACID
+transactions.
 
 ``` bash
 git clone git@github.com:mongodb-developer/java-quick-start.git
 ```
 
-## Quick Start
+## Quick start
 
 ### Requirements
 
@@ -23,18 +23,17 @@ git clone git@github.com:mongodb-developer/java-quick-start.git
 - Maven 3.8.7
 - Docker (optional)
 
-### Step 1: Start MongoDB
+### Step 1: start MongoDB
 
-To get started with MongoDB Atlas and get a free cluster
-read [this blog post](https://developer.mongodb.com/quickstart/free-atlas-cluster).
+Get started with MongoDB Atlas and [get a free cluster](https://developer.mongodb.com/quickstart/free-atlas-cluster).
 
-Or you can start an ephemeral single node Replica Set using Docker for testing quickly:
+Or you can start an ephemeral single node replica set using Docker for testing quickly:
 
 ```bash
 docker run --rm -d -p 27017:27017 -h $(hostname) --name mongo mongo:7.0.3 --replSet=RS && sleep 3 && docker exec mongo mongosh --quiet --eval "rs.initiate();"
 ```
 
-### Step 2: Start Java
+### Step 2: start Java
 
 This demo contains two main programs: `ChangeStreams.java` and `Transactions.java`.
 
@@ -59,7 +58,7 @@ mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.transactions.Tran
 > Note: Always execute the `ChangeStreams` program first because it creates the `product` collection with the
 > required [JSON Schema](https://www.mongodb.com/docs/manual/reference/operator/query/jsonSchema/).
 
-Let’s compare our existing single document transactions with MongoDB 4.0’s ACID compliant multi-document transactions
+Let’s compare our existing single-document transactions with MongoDB 4.0’s ACID-compliant multi-document transactions
 and see how we can leverage this new feature with Java.
 
 ## Prior to MongoDB 4.0
@@ -74,10 +73,10 @@ each document.
 
 Let’s take an example with a very simple stock management application.
 
-First of all, I need a [MongoDB Replica Set](https://www.mongodb.com/docs/manual/replication/) so please follow the
+First of all, I need a [MongoDB replica set](https://www.mongodb.com/docs/manual/replication/), so please follow the
 instructions given above to start MongoDB.
 
-Now let’s insert the following documents into a `product` collection:
+Now, let’s insert the following documents into a `product` collection:
 
 ```js
 db.product.insertMany([
@@ -91,7 +90,7 @@ Let’s imagine there is a sale on, and we want to offer our customers a 20% dis
 But before applying this discount, we want to monitor when these operations are happening in MongoDB with [Change
 Streams](https://www.mongodb.com/docs/manual/changeStreams/).
 
-Execute the following in a [MongoDB Shell](https://www.mongodb.com/docs/mongodb-shell/):
+Execute the following in a [MongoDB shell](https://www.mongodb.com/docs/mongodb-shell/):
 
 ```js
 cursor = db.product.watch([{$match: {operationType: "update"}}]);
@@ -104,7 +103,7 @@ while (!cursor.isClosed()) {
 }
 ```
 
-Keep this shell on the side, open another MongoDB Shell and apply the discount:
+Keep this shell on the side, open another MongoDB shell, and apply the discount:
 
 ```js
 RS [direct: primary] test> db.product.updateMany({}, {$mul: {price:0.8}})
@@ -123,7 +122,7 @@ RS [direct: primary] test> db.product.find().pretty()
 ```
 
 As you can see, both documents were updated with a single command line but not in a single transaction.
-Here is what we can see in the Change Stream shell:
+Here is what we can see in the change stream shell:
 
 ```js
 {
@@ -172,19 +171,19 @@ Here is what we can see in the Change Stream shell:
 }
 ```
 
-As you can see the cluster times (see the `clusterTime` key) of the two operations are different: the operations
+As you can see, the cluster times (see the `clusterTime` key) of the two operations are different: The operations
 occurred during the same second but the counter of the timestamp has been incremented by one.
 
 Thus, here each document is updated one at a time, and even if this happens really fast, someone else could read the
 documents while the update is running and see only one of the two products with the discount.
 
-Most of the time, it is something you can tolerate in your MongoDB database because, as much as possible, we try to
-embed tightly linked, or related data in the same document.
+Most of the time, this is something you can tolerate in your MongoDB database because, as much as possible, we try to
+embed tightly linked (or related) data in the same document.
 
 Consequently, two updates on the same document occur within a single transaction:
 
 ```js
-RS [direct: primary] test> db.product.updateOne({_id: "wine"},{$inc: {stock:1}, $set: {description : "It’s the best wine on Earth"}})
+RS [direct: primary] test> db.product.updateOne({_id: "wine"},{$inc: {stock:1}, $set: {description : "It's the best wine on Earth"}})
 {
   acknowledged: true,
   insertedId: null,
@@ -197,19 +196,19 @@ RS [direct: primary] test> db.product.findOne({_id: "wine"})
   _id: 'wine',
   price: Decimal128("6.0000000000000000"),
   stock: 4,
-  description: 'It’s the best wine on Earth'
+  description: 'It's the best wine on Earth'
 }
 ```
 
 However, sometimes, you cannot model all of your related data in a single document, and there are a lot of valid reasons
 for choosing not to embed documents.
 
-## MongoDB 4.0 with Multi-Document ACID Transactions
+## MongoDB 4.0 with multi-document ACID transactions
 
 Multi-document [ACID transactions](https://www.mongodb.com/basics/acid-transactions) in MongoDB closely resemble what
 you may already be familiar with in traditional relational databases.
 
-MongoDB’s transactions are a conversational set of related operations that must atomically commit or fully rollback with
+MongoDB’s transactions are a conversational set of related operations that must atomically commit or fully roll back with
 all-or-nothing execution.
 
 Transactions are used to make sure operations are atomic even across multiple collections or databases. Consequently,
@@ -217,21 +216,21 @@ with snapshot isolation reads, another user can only observe either all the oper
 
 Let’s now add a shopping cart to our example.
 
-For this example, 2 collections are required because we are dealing with 2 different business entities: the stock
-management and the shopping cart each client can create during shopping. The life cycles of each document in these
+For this example, two collections are required because we are dealing with two different business entities: the stock
+management and the shopping cart each client can create during shopping. The lifecycles of each document in these
 collections are different.
 
 A document in the product collection represents an item I’m selling. This contains the current price of the product and
 the current stock. I created a POJO to represent
-it : [Product.java](https://github.com/mongodb-developer/java-quick-start/blob/master/src/main/java/com/mongodb/quickstart/transactions/models/Product.java).
+it: [Product.java](https://github.com/mongodb-developer/java-quick-start/blob/master/src/main/java/com/mongodb/quickstart/transactions/models/Product.java).
 
 ```js
 { "_id" : "beer", "price" : NumberDecimal("3"), "stock" : NumberInt(5) }
 ```
 
-A shopping cart is created when a client adds its first item in the cart and is removed when the client proceeds to
-checkout or leaves the website. I created a POJO to represent
-it : [Cart.java](https://github.com/mongodb-developer/java-quick-start/blob/master/src/main/java/com/mongodb/quickstart/transactions/models/Cart.java).
+A shopping cart is created when a client adds their first item in the cart and is removed when the client proceeds to
+check out or leaves the website. I created a POJO to represent
+it: [Cart.java](https://github.com/mongodb-developer/java-quick-start/blob/master/src/main/java/com/mongodb/quickstart/transactions/models/Cart.java).
 
 ```js
 {
@@ -246,12 +245,12 @@ it : [Cart.java](https://github.com/mongodb-developer/java-quick-start/blob/mast
 }
 ```
 
-The challenge here resides in the fact that I cannot sell more than I possess: if I have 5 beers to sell, I cannot have
-more than 5 beers distributed across the different client carts.
+The challenge here resides in the fact that I cannot sell more than I possess: If I have five beers to sell, I cannot have
+more than five beers distributed across the different client carts.
 
 To ensure that, I have to make sure that the operation creating or updating the client cart is atomic with the stock
 update. That’s where the multi-document transaction comes into play.
-The transaction must fail in the case someone tries to buy something I do not have in my stock. I will add a constraint
+The transaction must fail in case someone tries to buy something I do not have in my stock. I will add a constraint
 on the product stock:
 
 ```js
@@ -269,12 +268,12 @@ db.createCollection("product", {
             price: {
                bsonType: "decimal",
                minimum: 0,
-               description: "must be a positive decimal and is required"
+               description: "must be a non-negative decimal and is required"
             },
             stock: {
                bsonType: "int",
                minimum: 0,
-               description: "must be a positive integer and is required"
+               description: "must be a non-negative integer and is required"
             }
          }
       }
@@ -288,7 +287,7 @@ To monitor our example, we are going to use MongoDB [Change Streams](https://www
 that were introduced in MongoDB 3.6.
 
 In [ChangeStreams.java](https://github.com/mongodb-developer/java-quick-start/blob/master/src/main/java/com/mongodb/quickstart/transactions/ChangeStreams.java),
-I am going to monitor the database `test` which contains our 2 collections. It'll print each
+I am going to monitor the database `test` which contains our two collections. It'll print each
 operation with its associated cluster time.
 
 ```java
@@ -345,12 +344,12 @@ public class ChangeStreams {
                                   "price": {
                                     "bsonType": "decimal",
                                     "minimum": 0,
-                                    "description": "must be a positive decimal and is required"
+                                    "description": "must be a non-negative decimal and is required"
                                   },
                                   "stock": {
                                     "bsonType": "int",
                                     "minimum": 0,
-                                    "description": "must be a positive integer and is required"
+                                    "description": "must be a non-negative integer and is required"
                                   }
                                 }
                               }
@@ -362,18 +361,18 @@ public class ChangeStreams {
 }
 ```
 
-In this example we have 5 beers to sell.
+In this example, we have five beers to sell.
 
-Alice wants to buy 2 beers, but we are **not** going to use a multi-document transaction for this. We will
-observe in the change streams two operations at 2 different cluster times:
+Alice wants to buy two beers, but we are **not** going to use a multi-document transaction for this. We will
+observe in the change streams two operations at two different cluster times:
 
-- one creating the cart
-- one updating the stock
+- One creating the cart
+- One updating the stock
 
-Then Alice adds 2 more beers in her cart, and we are going to use a transaction this time. The result in the change
-stream will be 2 operations happening at the same cluster time.
+Then, Alice adds two more beers to her cart, and we are going to use a transaction this time. The result in the change
+stream will be two operations happening at the same cluster time.
 
-Finally, she will try to order 2 extra beers but the jsonSchema validator will fail the product update (as there is only
+Finally, she will try to order two extra beers but the jsonSchema validator will fail the product update (as there is only
 one in stock) and result in a
 rollback. We will not see anything in the change stream.
 Below is the source code
@@ -552,7 +551,7 @@ public class Transactions {
 }
 ```
 
-Here is the console of the Change Stream :
+Here is the console of the change stream:
 
 ```
 Dropping the 'test' database.
@@ -567,15 +566,15 @@ Timestamp{value=7304460088717082625, seconds=1700702144, inc=1} => Document{{_id
 ```
 
 As you can see here, we only get five operations because the two last operations were never committed to the database,
-and therefore the change stream has nothing to show.
+and therefore, the change stream has nothing to show.
 
 - The first operation is the product collection initialization (create the product document for the beers).
-- The second and third operations are the first 2 beers Alice adds to her cart *without* a multi-doc transaction. Notice
-  that the two operations do *not* happen on the same cluster time.
+- The second and third operations are the first two beers Alice adds to her cart *without* a multi-doc transaction. Notice
+  that the two operations do *not* happen at the same cluster time.
 - The two last operations are the two additional beers Alice adds to her cart *with* a multi-doc transaction. Notice
   that this time the two operations are atomic, and they are happening exactly at the same cluster time.
 
-Here is the console of the Transaction java process that sums up everything I said earlier.
+Here is the console of the transaction Java process that sums up everything I said earlier.
 
 ```
 Database state:
@@ -630,11 +629,11 @@ Product{id='beer', stock=1, price=3}
 Cart{id='Alice', items=[Item{productId=beer, quantity=4, price=3}]}
 ```
 
-## Next Steps
+## Next steps
 
 Thanks for taking the time to read my post. I hope you found it useful and interesting.
 As a reminder, all the code is
-available [on this GitHub repository](https://github.com/mongodb-developer/java-quick-start)
+available [on the GitHub repository](https://github.com/mongodb-developer/java-quick-start)
 for you to experiment.
 
 If you're seeking an easy way to begin with MongoDB, you can achieve that in just five clicks using
