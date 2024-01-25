@@ -261,7 +261,7 @@ Finally, we need to assign an endpoint to our service to start discussing with t
 
 Retrieve the endpoint to test the REST API. For me, it's:
 
-![](images/17_Azure_endpoint.png)
+![Retrieve endpoint](images/17_Azure_endpoint.png)
 
 ```
 https://mongodb-spring-apps-mongodb-persons-app.azuremicroservices.io
