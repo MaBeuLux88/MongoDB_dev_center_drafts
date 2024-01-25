@@ -173,7 +173,7 @@ Now we can create our first microservice. Click on `Create App`.
 
 ![Create app](images/7_Azure_create_app.png)
 
-Insert a name for your application and select Java 17.
+Insert a name for your application and select Java 17, and click `Create`.
 
 ![Go to resource](images/8_Azure_create_app_details.png)
 
