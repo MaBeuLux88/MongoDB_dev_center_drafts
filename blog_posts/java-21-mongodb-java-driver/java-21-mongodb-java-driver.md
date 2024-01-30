@@ -8,7 +8,7 @@ miss! Increased performances and non-blocking threads are on the menu today! ðŸš
 In this blog post, we're going to take a stroll through some of the key features of Java 21 that are not just exciting
 for Java devs in general but are particularly juicy for those of us pushing the boundaries with MongoDB.
 
-# JDK 21
+## JDK 21
 
 To begin with, let's have a look to all the features released in Java 21, also known
 as [JDK Enhancement Proposal](https://en.wikipedia.org/wiki/JDK_Enhancement_Proposal) (JEP).
