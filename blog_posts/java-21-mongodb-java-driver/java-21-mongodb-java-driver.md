@@ -3,7 +3,7 @@
 ## Introduction
 
 Greetings, Dev Community! Java 21 is here, and if you're using the MongoDB Java Driver, this is a ride you won't want to
-miss! 🚀
+miss! Increased performances and non-blocking threads are on the menu today! 🚀
 
 In this blog post, we're going to take a stroll through some of the key features of Java 21 that are not just exciting
 for Java devs in general but are particularly juicy for those of us pushing the boundaries with MongoDB.
@@ -31,9 +31,8 @@ as [JDK Enhancement Proposal](https://en.wikipedia.org/wiki/JDK_Enhancement_Prop
 
 ## The Project Loom & MongoDB Java Driver 4.11
 
-While some of them have little to no interest - specifically - for the MongoDB Java driver users, some of them are a lot
-more
-interesting, particularly these 3 JEPs.
+While some of them, like deprecations, might not be the most exciting, some of them are more interesting, particularly
+these 3 JEPs.
 
 - [JEP 444: Virtual Threads](https://openjdk.org/jeps/444)
 - [JEP 453: Structured Concurrency (Preview)](https://openjdk.org/jeps/453)
@@ -53,31 +52,13 @@ utilization and simplify code maintenance, providing a more accessible approach 
 applications. The project aims to enhance the developer experience by reducing the complexities associated with thread
 management while optimizing performance.
 
-> Since the [version 4.11](https://www.mongodb.com/docs/drivers/java/sync/current/whats-new/#new-features-in-4.11) of the
-MongoDB java driver, [virtual threads](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html) are fully
-supported.
+> Since the [version 4.11](https://www.mongodb.com/docs/drivers/java/sync/current/whats-new/#new-features-in-4.11) of
+> the
+> MongoDB java driver, [virtual threads](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html) are fully
+> supported.
 
 If you want more details, you can read [this epic in the MongoDB Jira](https://jira.mongodb.org/browse/JAVA-4649) which
 explains the motivations of this support.
-
-Here is the list of all the jira tickets in this epic:
-
-- [JAVA-5138](https://jira.mongodb.org/browse/JAVA-5138): Handle interrupts: Socket.connect is interruptible in a
-  virtual thread
-- [JAVA-5139](https://jira.mongodb.org/browse/JAVA-5139): Handle interrupts: synchronous KeyManagementService uses
-  Socket IO (open, read, write), which is interruptible in a virtual thread
-- [JAVA-5140](https://jira.mongodb.org/browse/JAVA-5140): Replace uninterruptible Lock.lock with Lock.lockInterruptibly
-- [JAVA-4641](https://jira.mongodb.org/browse/JAVA-4641): Fix how InterruptedExceptions are handled
-- [JAVA-4646](https://jira.mongodb.org/browse/JAVA-4646): Deal with consequence of interrupted socket operation throwing
-  SocketException
-- [JAVA-4645](https://jira.mongodb.org/browse/JAVA-4645): Investigate ThreadLocalRandom interaction with virtual
-- [JAVA-4642](https://jira.mongodb.org/browse/JAVA-4642): Replace synchronized block with ReentrantLock in BaseCluster
-- [JAVA-5105](https://jira.mongodb.org/browse/JAVA-5105): Get rid of all synchronized blocks and methods in production
-  code
-- [JAVA-5109](https://jira.mongodb.org/browse/JAVA-5109): Try creating tests that verify interruptibility of synchronous
-  MongoClient methods and MongoIterable/MongoCursor methods
-- [JAVA-5189](https://jira.mongodb.org/browse/JAVA-5189): Use Lock.lockInterruptibly only where it may actually be
-  needed
 
 You can also read more about the Java
 driver [new features](https://www.mongodb.com/docs/drivers/java/sync/current/whats-new/)
@@ -115,7 +96,7 @@ using
 the [Java Spring Boot MongoDB Starter in GitHub]( https://github.com/mongodb-developer/java-spring-boot-mongodb-starter).
 
 If you don't have one already, claim your free MongoDB cluster
-in [MongoDB Atlas](https://www.mongodb.com/atlas/database) to get started with the above repository faster.  
+in [MongoDB Atlas](https://www.mongodb.com/atlas/database) to get started with the above repository faster.
 
 Any burning question? Come chat with us in the [MongoDB Community Forums](https://www.mongodb.com/community/forums/).
 
