@@ -202,4 +202,10 @@ With the release of MongoDB Java Driver 5.0.0, it's evident that the focus has b
 
 Ready to upgrade? Dive into the latest version of the [MongoDB Java Drivers](https://www.mongodb.com/docs/drivers/java-drivers/) and start leveraging its enhanced capabilities today!
 
+To finish with, don't forget to enable virtual threads in your Spring Boot 3.2.0+ projects! You just need to add this in your `application.properties` file:
+
+```properties
+spring.threads.virtual.enabled=true
+```
+
 Got questions or itching to share your success? Head over to the [MongoDB Community Forum](https://www.mongodb.com/community/forums/) – we're all ears and ready to help!
