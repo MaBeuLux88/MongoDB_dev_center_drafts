@@ -2,6 +2,13 @@
 
 The MongoDB Java quickstart repository is [available on GitHub](https://github.com/mongodb-developer/java-quick-start).
 
+### February 20th, 2024
+
+- Update to Java 21
+- Update Java Driver to 5.0.0
+- Update `logback-classic` to 1.2.13
+- Update the `preFlightChecks` method to support both MongoDB Atlas shared and dedicated clusters.
+
 ### November 14th, 2023
 
 - Update to Java 17
@@ -57,7 +64,7 @@ combined and how you can access that power.
 ### Prerequisites
 
 To follow along, you can use any environment you like and the integrated development environment of your choice. I'll
-use [Maven](http://maven.apache.org/install.html) 3.8.7 and the Java OpenJDK 17, but it's fairly easy to update the code
+use [Maven](http://maven.apache.org/install.html) 3.8.7 and the Java OpenJDK 21, but it's fairly easy to update the code
 to support older versions of Java, so feel free to use the JDK of your choice and update the Java version accordingly in
 the pom.xml file we are about to set up.
 
@@ -119,14 +126,15 @@ The pom.xml file should contain the following code:
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven-compiler-plugin.source>17</maven-compiler-plugin.source>
-        <maven-compiler-plugin.target>17</maven-compiler-plugin.target>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <mongodb-driver-sync.version>4.11.1</mongodb-driver-sync.version>
+        <maven-compiler-plugin.source>21</maven-compiler-plugin.source>
+        <maven-compiler-plugin.target>21</maven-compiler-plugin.target>
+        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+        <mongodb-driver-sync.version>5.0.0</mongodb-driver-sync.version>
         <mongodb-crypt.version>1.8.0</mongodb-crypt.version>
-        <!-- Have to keep version 1.2.12 because slf4j-api isn't optional in mongodb-crypt and is using an old version. -->
-        <!-- See https://jira.mongodb.org/browse/JAVA-5240 for a workaround-->
-        <logback-classic.version>1.2.12</logback-classic.version>
+        <!-- Keeping 1.2.13 until mongodb-crypt makes slf4j-api an optional dependency -->
+        <!-- https://jira.mongodb.org/browse/MONGOCRYPT-602 -->
+        <logback-classic.version>1.2.13</logback-classic.version>
+        <exec-maven-plugin.version>3.1.1</exec-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -158,11 +166,20 @@ The pom.xml file should contain the following code:
                     <target>${maven-compiler-plugin.target}</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <!-- Adding this plugin, so we don't need to add -Dexec.cleanupDaemonThreads=false in the mvn cmd line -->
+                <!-- to avoid the IllegalThreadStateException when running with Maven -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <configuration>
+                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
 </project>
-
 ```
 
 To verify that everything works correctly, you should be able to create and run a simple "Hello MongoDB!" program.
@@ -198,18 +215,17 @@ The result should look like this:
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
 [INFO] Copying 1 resource
 [INFO] 
-[INFO] --- maven-compiler-plugin:3.11.0:compile (default-compile) @ java-quick-start ---
-[INFO] Nothing to compile - all classes are up to date
+[INFO] --- maven-compiler-plugin:3.12.1:compile (default-compile) @ java-quick-start ---
+[INFO] Nothing to compile - all classes are up to date.
 [INFO] 
-[INFO] --- exec-maven-plugin:3.1.0:java (default-cli) @ java-quick-start ---
+[INFO] --- exec-maven-plugin:3.1.1:java (default-cli) @ java-quick-start ---
 Hello MongoDB!
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  0.269 s
-[INFO] Finished at: 2023-11-13T21:31:16+01:00
+[INFO] Total time:  0.634 s
+[INFO] Finished at: 2024-02-19T18:12:22+01:00
 [INFO] ------------------------------------------------------------------------
-
 ```
 
 ## Connecting with Java
@@ -257,10 +273,9 @@ public class Connection {
         Document response = mongoClient.getDatabase("admin").runCommand(pingCommand);
         System.out.println("=> Print result of the '{ping: 1}' command.");
         System.out.println(response.toJson(JsonWriterSettings.builder().indent(true).build()));
-        return response.getDouble("ok").equals(1.0);
+        return response.get("ok", Number.class).intValue() == 1;
     }
 }
-
 ```
 
 As you can see, the MongoDB connection string is retrieved from the *System Properties*, so we need to set this up. Once
@@ -719,7 +734,7 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.grades.findOne({"student_id":100
 }
 ```
 
-We also discussed BSON types and we noted that `student_id` and `class_id` are doubles.
+We also discussed BSON types, and we noted that `student_id` and `class_id` are doubles.
 
 MongoDB treats some types as equivalent for comparison purposes. For instance, numeric types undergo conversion before
 comparison.
@@ -823,7 +838,7 @@ different [query operators](https://docs.mongodb.com/manual/reference/operator/q
 ### Iterators
 
 The `find` method returns an object that implements the interface `FindIterable`, which ultimately extends
-the `Iterable` interface so we can use an iterator to go through the list of documents we are receiving from MongoDB:
+the `Iterable` interface, so we can use an iterator to go through the list of documents we are receiving from MongoDB:
 
 ``` java
 FindIterable<Document> iterable = gradesCollection.find(gte("student_id", 10000));
