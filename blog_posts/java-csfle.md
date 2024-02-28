@@ -1,6 +1,12 @@
 ## Updates
 
-The MongoDB Java quickstart repository is [available on Github](https://github.com/mongodb-developer/java-quick-start).
+The MongoDB Java quickstart repository is [available on GitHub](https://github.com/mongodb-developer/java-quick-start).
+
+### February 28th, 2024
+
+- Update to Java 21
+- Update Java Driver to 5.0.0
+- Update `logback-classic` to 1.2.13
 
 ### November 14th, 2023
 
@@ -16,7 +22,7 @@ The MongoDB Java quickstart repository is [available on Github](https://github.c
 ### October 21st, 2020
 
 - Update Java Driver to 4.1.1.
-- The Java Driver logging is now enabled via the popular [SLF4J](http://www.slf4j.org/) API so I added logback in
+- The Java Driver logging is now enabled via the popular [SLF4J](http://www.slf4j.org/) API, so I added logback in
   the `pom.xml` and a configuration file `logback.xml`.
 
 ## What's the Client Side Field Level Encryption?
@@ -39,6 +45,12 @@ It's the ultimate piece of security against any kind of intrusion or snooping ar
 application with the correct encryption keys can decrypt and read the protected data.
 
 Let's check out the Java CSFLE API with a simple example.
+
+## Video
+
+This content is also available in video format.
+
+:youtube[]{vid=tZSH--qwdcE}
 
 ## Getting Set Up
 

@@ -2,7 +2,7 @@
 
 The MongoDB Java quickstart repository is [available on GitHub](https://github.com/mongodb-developer/java-quick-start).
 
-### February 20th, 2024
+### February 28th, 2024
 
 - Update to Java 21
 - Update Java Driver to 5.0.0
@@ -201,7 +201,7 @@ In the previous blog posts in this series, I showed you how to use CRUD operatio
 ``` java
 Grade newGrade = new Grade().setStudent_id(10003d)
                             .setClass_id(10d)
-                            .setScores(singletonList(new Score().setType("homework").setScore(50d)));
+                            .setScores(List.of(new Score().setType("homework").setScore(50d)));
 grades.insertOne(newGrade);
 ```
 

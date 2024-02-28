@@ -2,7 +2,7 @@
 
 The MongoDB Java quickstart repository is [available on GitHub](https://github.com/mongodb-developer/java-quick-start).
 
-### February 20th, 2024
+### February 28th, 2024
 
 - Update to Java 21
 - Update Java Driver to 5.0.0

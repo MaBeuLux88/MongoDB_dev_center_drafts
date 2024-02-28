@@ -17,9 +17,15 @@ git clone git@github.com:mongodb-developer/java-quick-start.git
 
 ## Quick start
 
+### Last update: February 28th, 2024
+
+- Update to Java 21
+- Update Java Driver to 5.0.0
+- Update `logback-classic` to 1.2.13
+
 ### Requirements
 
-- Java 17
+- Java 21
 - Maven 3.8.7
 - Docker (optional)
 
@@ -30,7 +36,7 @@ Get started with MongoDB Atlas and [get a free cluster](https://developer.mongod
 Or you can start an ephemeral single node replica set using Docker for testing quickly:
 
 ```bash
-docker run --rm -d -p 27017:27017 -h $(hostname) --name mongo mongo:7.0.3 --replSet=RS && sleep 3 && docker exec mongo mongosh --quiet --eval "rs.initiate();"
+docker run --rm -d -p 27017:27017 -h $(hostname) --name mongo mongo:7.0.5 --replSet=RS && sleep 3 && docker exec mongo mongosh --quiet --eval "rs.initiate();"
 ```
 
 ### Step 2: start Java
