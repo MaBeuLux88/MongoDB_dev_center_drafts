@@ -1,5 +1,3 @@
-# Rapidly Build a Highly Performant GraphQL API for MongoDB With Hasura
-
 ## Introduction
 
 In 2012, GraphQL was introduced as a developer-friendly API spec that allows clients to request exactly the data they
@@ -46,7 +44,7 @@ to [cloud.hasura.io](https://cloud.hasura.io/signup?utm_source=mongodb&utm_mediu
 to create an account or log in. Once you are on the Cloud Dashboard, navigate
 to [Projects](https://cloud.hasura.io/projects) and create a new project by clicking on `New Project`.
 
-![Create new project on Hasura Cloud](images/image8.jpg)
+![Create new project on Hasura Cloud][1]
 
 You can create a free project by selecting the region of your choice. In this example, I’m going with AWS
 infrastructure, US West region.
@@ -55,23 +53,23 @@ Do remember the region picked, because we want to co-locate the GraphQL API depl
 region as the database on MongoDB Atlas. This will be done in one of the subsequent steps. Click on
 the `Create Free Project` button as highlighted. As always, you can upgrade the project later as required.
 
-![Create Free Project button on Hasura Cloud](images/image15.jpg)
+![Create Free Project button on Hasura Cloud][2]
 
 Once the project is created, you’ll be taken to the project details page, which displays the GraphQL endpoint among
 other details. Take note of the `Hasura Cloud IP` on this page, as it’s required during the MongoDB Atlas setup to allow
 the connection from Hasura to MongoDB.
 
-![Launch Console Hasura Cloud](images/image10.jpg)
+![Launch Console Hasura Cloud][3]
 
 Click on `Launch Console` to open up the Hasura Console of the project. You will land on the API Explorer page of the
 console where you can try out the GraphQL APIs.
 
-![DATA tab inside Hasura Console](images/image16.jpg)
+![DATA tab inside Hasura Console][4]
 
 Click on the `DATA` tab at the top to navigate to the Data Management section of the console. Here you can connect to
 the various databases that Hasura supports. Choose MongoDB from the list and click on `Connect Existing Database`.
 
-![Connect your first database Hasura Console](images/image2.jpg)
+![Connect your first database Hasura Console][5]
 
 At this point, Hasura requires the connection details of MongoDB.
 
@@ -88,20 +86,20 @@ Head to [MongoDB Atlas](https://cloud.mongodb.com/), create a project if you don
 the `Database` page under the
 Deployments section. You should see a page like the one below:
 
-![Build a database button Mongo Atlas](images/image14.jpg)
+![Build a database button Mongo Atlas][6]
 
 Click on the `Build a Database` button. On the next page, you will select the deployment specifics.
 
 To keep it simple, start with the Free M0 cluster, which is free forever and great for getting started. You can always
 upgrade later when required.
 
-![Deploy your database with M0 Free Cluster](images/image6.jpg)
+![Deploy your database with M0 Free Cluster][7]
 
 Give a name for the cluster; for this example, use `Hasura`. You will need to select the region. For this tutorial, pick
 AWS as the provider and choose the `us-west-2` region to keep the data close to the Hasura instance (recall that our
 Hasura cluster was deployed on US West, as well).
 
-![Choose database region provider](images/image19.jpg)
+![Choose database region provider][8]
 
 Remember to choose the region closest to your users.
 
@@ -110,7 +108,7 @@ Remember to choose the region closest to your users.
 In the next step, add your IP address for local connectivity and create a new database user with `atlasAdmin` permission
 that you’ll need to access the MongoDB cluster from Hasura Cloud.
 
-![Connect to Database Cluster Mongo Atlas](images/image7.jpg)
+![Connect to Database Cluster Mongo Atlas][9]
 
 Make a note of the password, because we need this in a later step.
 
@@ -126,7 +124,7 @@ Once the database deployment is complete, you might want to load some sample dat
 heading to the `Database` tab and under the newly created Cluster, click on the `...` that opens up with an option
 to `Load Sample Dataset`. This can take a few seconds.
 
-![Load Sample Dataset](images/image3.jpg)
+![Load Sample Dataset][10]
 
 > Checkpoint: At this stage, we have created a project on Hasura Cloud and a database on MongoDB Atlas.
 
@@ -135,12 +133,12 @@ to `Load Sample Dataset`. This can take a few seconds.
 To connect Hasura to MongoDB, first add the Hasura Cloud IP address to your MongoDB cluster. To do that, navigate to the
 Network Access page (under Security) from the Atlas dashboard.
 
-![Add IP Address under Network Access](images/image5.jpg)
+![Add IP Address under Network Access][11]
 
 Click on `ADD IP ADDRESS` and enter the `Hasura Cloud IP` that you obtained from the Hasura Cloud dashboard in the first
 step.
 
-![Add IP Access List Entry](images/image11.jpg)
+![Add IP Access List Entry][12]
 
 Once this is done, Hasura Cloud should be able to communicate with the MongoDB Atlas instance. The next step is to get
 the database connection string.
@@ -148,7 +146,7 @@ the database connection string.
 On the Atlas dashboard, head to the `Database` page and click on `Connect` next to the Hasura cluster created some steps
 back. You’ll get the following options — choose the `Drivers` option.
 
-![Connect to your application](images/image4.jpg)
+![Connect to your application][13]
 
 You will get a popup with the connection string details. Copy the connection string for the database, which will be
 similar to this format:
@@ -169,7 +167,7 @@ as `mongodb`, the connection string copied from the previous step.
 
 This instance comes with a sample database called `sample_mflix`. Enter that under the `db` config.
 
-![Connect MongoDB Database in Hasura Console](images/image9.jpg)
+![Connect MongoDB Database in Hasura Console][14]
 
 Finally, click on `Connect Database` and you are all set with the connection of Hasura and MongoDB, all hosted on their
 respective Cloud instances.
@@ -182,7 +180,7 @@ For the sample database that was loaded to MongoDB, you can generate an API inst
 
 Head over to the mongodb -> Manage page on Hasura Console.
 
-![Untracked collections from the sample database](images/image20.jpg)
+![Untracked collections from the sample database][15]
 
 Check out the collections from the sample database shown on this page. For example, you can see collections such
 as `users`, `theaters`, `movies`, `comments`, `sessions`, and `embedded_movies`. Now you can `Track` them to make sure
@@ -301,14 +299,14 @@ Insert the following JSON as input:
 Alternatively, if you want to copy these objects from your Mongo collections directly, head to the `Collections` tab
 under the `Database` section.
 
-![Browse collections under Database section](images/image12.jpg)
+![Browse collections under Database section][16]
 
-![Track Mongo Collection in Hasura Cloud](images/image13.jpg)
+![Track Mongo Collection in Hasura Cloud][17]
 
 Click on the `Validate` button to validate the JSON document. In the next step, you will see the models derived from
 this document. Finally, click on the `Track Collection` button.
 
-![Logical Models Track Collection](images/image18.jpg)
+![Logical Models Track Collection][18]
 
 ### Try out GraphQL queries
 
@@ -336,7 +334,7 @@ We are trying to fetch 10 movies, sorted by released, descending.
 
 You will get a JSON response on the right as you execute the query by clicking the `play` button.
 
-![GraphQL API with JSON response](images/image17.jpg)
+![GraphQL API with JSON response][19]
 
 Voilà! GraphQL API for the `movies` collection is now tested and ready for consumption.
 
@@ -368,7 +366,7 @@ With the nature of GraphQL allowing the client to query what they want, it’s e
 requested by the client. Hasura does this by compiling the query with projection. Without Hasura, a typical query might
 be unoptimized and would fetch unnecessary data (more data than required).
 
-![Optimized vs un-optimized request cycle with Mongo](images/image1.png)
+![Optimized vs un-optimized request cycle with Mongo][20]
 
 ### Usage of aggregation pipelines
 
@@ -448,3 +446,25 @@ We recommend a few resources to learn more about the integration.
 
 Join the [Hasura Discord server](https://hasura.io/discord) to engage with the Hasura community, and ask questions about
 GraphQL or Hasura’s integration with MongoDB.
+
+
+[1]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt41deae7313d3196d/65cd4b4108fffdec1972284c/image8.jpg
+[2]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt18494d21c0934117/65cd4b400167d0749f8f9e6c/image15.jpg
+[3]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt1364bb8b705997c0/65cd4b41762832af2bc5f453/image10.jpg
+[4]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt73fbb5707846963e/65cd4b40470a5a9e9bcb86ae/image16.jpg
+[5]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt31ed46e340623a82/65cd4b418a7a5153870a741b/image2.jpg
+[6]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/bltdcb4a8993e2bd50b/65cd4b408a7a5148a90a7417/image14.jpg
+[7]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blta472e64238c46910/65cd4b41faacaed48c1fce7f/image6.jpg
+[8]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/bltdd90ff83d842fb73/65cd4b4008fffd23ea722848/image19.jpg
+[9]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt32b456930b96b959/65cd4b41f48bc2469c50fa76/image7.jpg
+[10]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/bltc3b49b304533ed87/65cd4b410167d01c2b8f9e70/image3.jpg
+[11]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt9bf1445744157bef/65cd4b4100d72eb99cf537b1/image5.jpg
+[12]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/bltfa807b7d9bee708b/65cd4b41ab4731a8b00eecbe/image11.jpg
+[13]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/bltf44e2aa8ff1e02a1/65cd4b419333f76f83109fb3/image4.jpg
+[14]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/bltb2722b7da74ada16/65cd4b41dccfc663efab00ae/image9.jpg
+[15]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt933bb95de2d55385/65cd4b407c5d415bdb528a1b/image20.jpg
+[16]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt9cd80a46a72aee23/65cd4b4123dbef0a8bfff34c/image12.jpg
+[17]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt03ae958f364433f6/65cd4b41670d7e0076281bbd/image13.jpg
+[18]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt5d1e291dba16fe93/65cd4b400ad03883cc882ad8/image18.jpg
+[19]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt7b71a7e3f04444ae/65cd4b4023dbeffeccfff348/image17.jpg
+[20]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt722abb79eaede951/65cd4b419778063874c05447/image1.png
