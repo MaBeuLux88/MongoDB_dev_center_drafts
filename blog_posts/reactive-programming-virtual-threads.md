@@ -239,7 +239,7 @@ applications. Be gone blocking I/Os!
 
 [MongoDB Reactive Streams Driver](https://mongodb.github.io/mongo-java-driver/5.0/driver-reactive/) is fully equipped to
 benefit from both virtual threads optimizations with Java 21, and - as always - benefit from the reactive programming
-principals and best practices.
+principles and best practices.
 
 I hope this post motivated you to give it a try. Deploy your cluster on
 [MongoDB Atlas](https://www.mongodb.com/atlas/database) and give the 
