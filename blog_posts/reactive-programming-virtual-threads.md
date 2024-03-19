@@ -2,7 +2,7 @@
 
 ## Introduction
 
-When I first heard about the [project Loom](https://wiki.openjdk.org/display/loom/Main) and [virtual threads](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html#GUID-DC4306FC-D6C1-4BCC-AECE-48C32C1A8DAA), my first thought was that this was a death sentence for
+When I first heard about the [project Loom](https://wiki.openjdk.org/display/loom/Main) and [virtual threads](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html), my first thought was that this was a death sentence for
 [reactive programming](https://www.baeldung.com/cs/reactive-programming). It wasn't bad news at first because reactive programming comes with its additional layer of
 complexity and using imperative programming without wasting resources was music to my ears.
 
@@ -35,7 +35,7 @@ run on the same platform thread, making them more efficient to work with a large
 
 Virtual threads allow the Java developer to use the system resources more efficiently and non-blocking I/O.
 
-But with the closely related [JEP 453](https://openjdk.org/jeps/453) and [JEP 446](https://openjdk.org/jeps/446),
+But with the closely related [JEP 453: Structured Concurrency](https://openjdk.org/jeps/453) and [JEP 446: Scoped Values](https://openjdk.org/jeps/446),
 virtual threads also support structured concurrency to treat a group of related tasks as a single unit of work and
 divide a task into smaller independent subtasks to improve response time and throughput.
 
@@ -200,11 +200,13 @@ First terminal:
 ```shell
 git clone git@github.com:mongodb-developer/mdb-spring-boot-reactive.git
 cd mdb-spring-boot-reactive/
-sed -i s/warn/info/g src/main/resources/application.properties
+sed -i 's/warn/info/g' src/main/resources/application.properties
 docker run --rm -d -p 27017:27017 -h $(hostname) --name mongo mongo:latest --replSet=RS && sleep 5 && docker exec mongo mongosh --quiet --eval "rs.initiate();"
 mongosh --file setup.js
 mvn spring-boot:run
 ```
+
+> Note: On macOS, you may have to use `sed -i '' 's/warn/info/g' src/main/resources/application.properties` if you are not using `gnu-sed` or you can just edit the final manually.
 
 Second terminal
 
@@ -242,9 +244,9 @@ benefit from both virtual threads optimizations with Java 21, and - as always - 
 principles and best practices.
 
 I hope this post motivated you to give it a try. Deploy your cluster on
-[MongoDB Atlas](https://www.mongodb.com/atlas/database) and give the 
+[MongoDB Atlas](https://www.mongodb.com/atlas/database) and give the
 [repository](https://github.com/mongodb-developer/mdb-spring-boot-reactive) a spin.
 
-For further guidance, support, and to engage with a vibrant community of developers, head over to the 
+For further guidance, support, and to engage with a vibrant community of developers, head over to the
 [MongoDB Forum](https://www.mongodb.com/community/forums/) where you can find help, share insights, and ask those
 burning questions. Let's continue pushing the boundaries of Java development together!
