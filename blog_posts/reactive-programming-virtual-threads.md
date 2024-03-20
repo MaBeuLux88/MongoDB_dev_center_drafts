@@ -2,7 +2,7 @@
 
 ## Introduction
 
-When I first heard about the [project Loom](https://wiki.openjdk.org/display/loom/Main) and [virtual threads](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html), my first thought was that this was a death sentence for
+When I first heard about [Project Loom](https://wiki.openjdk.org/display/loom/Main) and [virtual threads](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html), my first thought was that this was a death sentence for
 [reactive programming](https://www.baeldung.com/cs/reactive-programming). It wasn't bad news at first because reactive programming comes with its additional layer of
 complexity and using imperative programming without wasting resources was music to my ears.
 
@@ -26,7 +26,7 @@ performance.
 
 ### Introducing Virtual Threads
 
-Virtual threads, introduced by the [Project Loom](https://wiki.openjdk.org/display/loom/Main) in the [JEP 444](https://openjdk.org/jeps/444), are lightweight by
+Virtual threads, introduced by [Project Loom](https://wiki.openjdk.org/display/loom/Main) in [JEP 444](https://openjdk.org/jeps/444), are lightweight by
 design and aim to overcome the limitations of traditional threads and create high-throughput concurrent applications.
 They implement `java.lang.Thread` and they are managed by the JVM. Several of them can
 run on the same platform thread, making them more efficient to work with a large number of small concurrent tasks.
@@ -85,7 +85,7 @@ its associated workers.
 
 ## Reactive Programming
 
-First of all, [reactive programming](https://www.reactivemanifesto.org/) is a programming paradigm when virtual threads
+First of all, [reactive programming](https://www.reactivemanifesto.org/) is a programming paradigm whereas virtual threads
 are "just" a technical solution. Reactive Programming revolves around asynchronous and event-driven programming
 principles, offering solutions to manage streams of data and asynchronous operations efficiently.
 
@@ -95,7 +95,7 @@ the [observer pattern](https://en.wikipedia.org/wiki/Observer_pattern).
 The pillars of reactive programming are:
 
 - Non-blocking I/O.
-- Stream bases asynchronous communication.
+- Stream based asynchronous communication.
 - Back-pressure handling: prevent overwhelming downstream components with more data than they can handle.
 
 The only common point of interest with virtual threads is the first one: non-blocking I/O.
