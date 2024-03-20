@@ -206,7 +206,7 @@ mongosh --file setup.js
 mvn spring-boot:run
 ```
 
-> Note: On macOS, you may have to use `sed -i '' 's/warn/info/g' src/main/resources/application.properties` if you are not using `gnu-sed` or you can just edit the final manually.
+> Note: On macOS, you may have to use `sed -i '' 's/warn/info/g' src/main/resources/application.properties` if you are not using `gnu-sed` or you can just edit the file manually.
 
 Second terminal
 
