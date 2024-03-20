@@ -1,4 +1,4 @@
-# Optimizing Java Performance with Virtual Threads, Reactive Programming, and MongoDB
+# Optimizing Java Performance With Virtual Threads, Reactive Programming, and MongoDB
 
 ## Introduction
 
@@ -8,30 +8,30 @@ complexity and using imperative programming without wasting resources was music 
 
 But I was actually wrong and a bit more reading and learning helped me understand why thinking this was a mistake.
 
-In this post, we'll explore virtual threads and reactive programming, their differences and how we can leverage both in
+In this post, we'll explore virtual threads and reactive programming, their differences, and how we can leverage both in
 the same project to achieve peak concurrency performance in Java.
 
 Learn more about [virtual threads support with MongoDB](https://www.mongodb.com/developer/products/mongodb/jdk-21-virtual-threads/) in my previous post on this topic.
 
-## Virtual Threads
+## Virtual threads
 
-### Traditional Thread Model in Java
+### Traditional thread model in Java
 
 In traditional Java concurrency, threads are heavyweight entities managed by the operating system. Each OS
 thread is wrapped by a platform thread which is managed by the Java Virtual Machine (JVM) that executes the Java code.
 
 Each thread requires significant system resources, leading to limitations in scalability when dealing with a
-large number of concurrent tasks. Context switching between threads is also resource intensive and can deteriorate the
+large number of concurrent tasks. Context switching between threads is also resource-intensive and can deteriorate the
 performance.
 
-### Introducing Virtual Threads
+### Introducing virtual threads
 
 Virtual threads, introduced by [Project Loom](https://wiki.openjdk.org/display/loom/Main) in [JEP 444](https://openjdk.org/jeps/444), are lightweight by
 design and aim to overcome the limitations of traditional threads and create high-throughput concurrent applications.
 They implement `java.lang.Thread` and they are managed by the JVM. Several of them can
 run on the same platform thread, making them more efficient to work with a large number of small concurrent tasks.
 
-### Benefits of Virtual Threads
+### Benefits of virtual threads
 
 Virtual threads allow the Java developer to use the system resources more efficiently and non-blocking I/O.
 
@@ -80,13 +80,13 @@ Task 8 executed by virtual thread: VirtualThread[#37]/runnable@ForkJoinPool-1-wo
 Task 9 executed by virtual thread: VirtualThread[#38]/runnable@ForkJoinPool-1-worker-9
 ```
 
-We can see that the tasks ran in parallel. Each in a different virtual thread, managed by a single `ForkJoinPool` and
+We can see that the tasks ran in parallel — each in a different virtual thread, managed by a single `ForkJoinPool` and
 its associated workers.
 
-## Reactive Programming
+## Reactive programming
 
 First of all, [reactive programming](https://www.reactivemanifesto.org/) is a programming paradigm whereas virtual threads
-are "just" a technical solution. Reactive Programming revolves around asynchronous and event-driven programming
+are "just" a technical solution. Reactive programming revolves around asynchronous and event-driven programming
 principles, offering solutions to manage streams of data and asynchronous operations efficiently.
 
 In Java, reactive programming is traditionally implemented with
@@ -95,18 +95,18 @@ the [observer pattern](https://en.wikipedia.org/wiki/Observer_pattern).
 The pillars of reactive programming are:
 
 - Non-blocking I/O.
-- Stream based asynchronous communication.
-- Back-pressure handling: prevent overwhelming downstream components with more data than they can handle.
+- Stream-based asynchronous communication.
+- Back-pressure handling to prevent overwhelming downstream components with more data than they can handle.
 
 The only common point of interest with virtual threads is the first one: non-blocking I/O.
 
-### Reactive Programming Frameworks
+### Reactive programming frameworks
 
 The main frameworks in Java that follow the reactive programming principles are:
 
 - [Reactive Streams](https://www.reactive-streams.org/): provides a standard for asynchronous stream processing with
-  non-blocking back pressure
-- [RxJava](https://github.com/ReactiveX/RxJava): JVM implementation of [Reactive Extensions](http://reactivex.io/)
+  non-blocking back pressure.
+- [RxJava](https://github.com/ReactiveX/RxJava): JVM implementation of [Reactive Extensions](http://reactivex.io/).
 - [Project Reactor](https://spring.io/reactive): foundation of the reactive stack in the Spring ecosystem.
 
 ### Example
@@ -151,15 +151,15 @@ public class MongoDBReactiveExample {
 > the [SubscriberHelpers.java](https://github.com/mongodb/mongo-java-driver/blob/master/driver-reactive-streams/src/examples/reactivestreams/helpers/SubscriberHelpers.java)
 > in the [MongoDB Java Driver repository](https://github.com/mongodb/mongo-java-driver) code examples.
 
-## Virtual Threads and Reactive Programming Working Together
+## Virtual threads and reactive programming working together
 
 As you might have understood, virtual threads and reactive programming aren't competing against each other, and they
-certainly agree on one thing: blocking I/O operations are evil!
+certainly agree on one thing: Blocking I/O operations is evil!
 
 Who said that we had to make a choice? Why not use them both to achieve peak performance and prevent blocking I/Os once
 and for all?
 
-Good news, the `reactor-core`
+Good news: The `reactor-core`
 library [added virtual threads support in 3.6.0](https://spring.io/blog/2023/10/31/what-new-is-coming-in-reactor-core-3-6-0). [Project Reactor](https://projectreactor.io/)
 is the library that provides a rich and functional implementation of `Reactive Streams APIs`
 in [Spring Boot](https://spring.io/projects/spring-boot)
@@ -170,19 +170,19 @@ Webflux.
 
 There are a few conditions though:
 
-- Use Tomcat because - as I'm writing this post - [Netty](https://netty.io/) (used by default by Webflux)
-  doesn't support virtual threads. See [here](https://github.com/netty/netty/issues/12848)
-  and [there](https://github.com/spring-projects/spring-boot/issues/39425) for more details.
+- Use Tomcat because — as I'm writing this post — [Netty](https://netty.io/) (used by default by Webflux)
+  doesn't support virtual threads. See GitHub issues [12848](https://github.com/netty/netty/issues/12848)
+  and [39425](https://github.com/spring-projects/spring-boot/issues/39425) for more details.
 - Activate virtual threads: `spring.threads.virtual.enabled=true` in `application.properties`.
 
-### Let's Test
+### Let's test
 
-In [this repository](https://github.com/mongodb-developer/mdb-spring-boot-reactive), my colleague Wen Jie Teo and I
+In [the repository](https://github.com/mongodb-developer/mdb-spring-boot-reactive), my colleague Wen Jie Teo and I
 updated the `pom.xml` and `application.properties` so we could use virtual threads in this reactive project.
 
 You can run the following commands to get this project running quickly and test that it's running with virtual threads
 correctly. You can get more details in the
-[README.md](https://github.com/mongodb-developer/mdb-spring-boot-reactive/blob/main/README.md) file but here is a gist.
+[README.md](https://github.com/mongodb-developer/mdb-spring-boot-reactive/blob/main/README.md) file but here is the gist.
 
 Here are the instructions in English:
 
@@ -193,7 +193,7 @@ Here are the instructions in English:
 - Start the Java application.
 - Test one of the APIs available.
 
-Here are the instructions translated in Bash.
+Here are the instructions translated into Bash.
 
 First terminal:
 
@@ -206,7 +206,7 @@ mongosh --file setup.js
 mvn spring-boot:run
 ```
 
-> Note: On macOS, you may have to use `sed -i '' 's/warn/info/g' src/main/resources/application.properties` if you are not using `gnu-sed` or you can just edit the file manually.
+> Note: On macOS, you may have to use `sed -i '' 's/warn/info/g' src/main/resources/application.properties` if you are not using `gnu-sed`, or you can just edit the file manually.
 
 Second terminal
 
@@ -220,7 +220,7 @@ If everything worked as planned, you should see this line in the first terminal 
 Stack trace's last line: java.base/java.lang.VirtualThread.run(VirtualThread.java:309) from POST /account
 ```
 
-Which is the last line in the stack trace that we are logging. It proves that we are using virtual thread to handle
+This is the last line in the stack trace that we are logging. It proves that we are using virtual threads to handle
 our query.
 
 If we disable the virtual threads in the `application.properties` file and try again, we'll read instead:
@@ -235,18 +235,18 @@ This time, we are using a classic `java.lang.Thread` instance to handle our quer
 
 Virtual threads and reactive programming are not mortal enemies. The truth is actually far from that.
 
-The combination of virtual threads advantages over standard platform threads with the best practices of reactive
+The combination of virtual threads’ advantages over standard platform threads with the best practices of reactive
 programming opens up new frontiers of scalability, responsiveness, and efficient resource utilization for your
-applications. Be gone blocking I/Os!
+applications. Be gone, blocking I/Os!
 
 [MongoDB Reactive Streams Driver](https://mongodb.github.io/mongo-java-driver/5.0/driver-reactive/) is fully equipped to
-benefit from both virtual threads optimizations with Java 21, and - as always - benefit from the reactive programming
+benefit from both virtual threads optimizations with Java 21, and — as always — benefit from the reactive programming
 principles and best practices.
 
 I hope this post motivated you to give it a try. Deploy your cluster on
 [MongoDB Atlas](https://www.mongodb.com/atlas/database) and give the
 [repository](https://github.com/mongodb-developer/mdb-spring-boot-reactive) a spin.
 
-For further guidance, support, and to engage with a vibrant community of developers, head over to the
+For further guidance and support, and to engage with a vibrant community of developers, head over to the
 [MongoDB Forum](https://www.mongodb.com/community/forums/) where you can find help, share insights, and ask those
 burning questions. Let's continue pushing the boundaries of Java development together!
