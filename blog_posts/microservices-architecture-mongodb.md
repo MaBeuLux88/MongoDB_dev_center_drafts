@@ -27,7 +27,7 @@ We are going to use Spring Boot and Spring Cloud dependencies to build our archi
 
 Here is what a Microservices architecture looks like [according to Spring](https://spring.io/microservices):
 
-==> Image here
+![Spring Microservices Architecture][1]
 
 We need several services to run this project. Let's talk about them one by one.
 
@@ -122,7 +122,7 @@ resiliency.
 When our microservices start, they register themselves to the service registry. The api gateway can use this registry to
 locate the microservices and distribute the queries according to its routing configuration.
 
-```yaml
+```
 server:
   port: 8080
 
@@ -215,8 +215,8 @@ At this point, you should have 5 services running:
 - A service-registry on port 8761
 - An api-gateway on port 8080
 - Two microservices:
-    - company-service on port 8081
-    - employee-service on port 8082
+  - company-service on port 8081
+  - employee-service on port 8082
 
 And two MongoDB nodes on port 27017 and 27018 or two MongoDB clusters on MongoDB Atlas.
 
@@ -345,3 +345,6 @@ improve the resiliency in production and a [Spring Cloud Sleuth](https://spring.
 help with distributed tracing and auto-configuration.
 
 If you have questions, please head to our [developer community website](https://www.mongodb.com/community/forums/) where the MongoDB engineers and the MongoDB community will help you build your next big idea with MongoDB.
+
+
+[1]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt332394d666c28140/661ab5bf188d353a3e2da005/microservices-architecture.svg
