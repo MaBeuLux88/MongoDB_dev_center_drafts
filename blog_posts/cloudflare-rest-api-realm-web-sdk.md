@@ -6,6 +6,8 @@
 
 In this blog post, we will combine all these technologies together and create a REST API with a Cloudflare worker using a MongoDB Atlas cluster to store the data.
 
+> Note: In this tutorial, the worker isn't using any form of caching. While the connection between MongoDB and the Atlas serverless application is established and handled automatically in the Atlas App Services back end, each new query sent to the worker will require the user to go through the authentication and authorization process before executing any query. In this tutorial, we are using API keys to handle this process but Atlas App Services offers many different [authentication providers](https://www.mongodb.com/docs/atlas/app-services/users/#authentication-providers).
+
 ## TL;DR!
 
 The worker is in this [GitHub repository](https://github.com/mongodb-developer/cloudflare-worker-rest-api-atlas). The [README](https://github.com/mongodb-developer/cloudflare-worker-rest-api-atlas/blob/main/README.md) will get you up and running in no time, if you know what you are doing. Otherwise, I suggest you follow this step-by-step blog post. ;-)
@@ -14,7 +16,7 @@ The worker is in this [GitHub repository](https://github.com/mongodb-developer/c
 $ git clone git@github.com:mongodb-developer/cloudflare-worker-rest-api-atlas.git
 ```
 
-## Prerequisistes
+## Prerequisites
 
 - NO credit card! You can run this entire tutorial for free!
 - [Git](https://git-scm.com/) and [cURL](https://en.wikipedia.org/wiki/CURL).
@@ -35,39 +37,39 @@ To test (or interact with) the REST API, we need:
 
 It was created during this step of your set-up:
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/create_subdomain_445263d59f.png)
+![Cloudflare subdomain creation](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/create_subdomain_445263d59f.png)
 
 ## Create and Configure the Atlas Application
 
 To begin with, head to your MongoDB Atlas main page where you can see your cluster and access the 'App Services' tab at the top.
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/App_Services_UI_7c1682e8a4.png)
+![MongoDB Atlas App Services](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/App_Services_UI_7c1682e8a4.png)
 
 [Create an empty application](https://www.mongodb.com/docs/atlas/app-services/manage-apps/create/create-with-ui/) (no template) as close as possible to your MongoDB Atlas cluster to avoid latency between your cluster and app. My app is "local" in Ireland (eu-west-1) in my case.
 
 Now that our app is created, we need to set up two things: authentication via API keys and collection rules. Before that, note that you can retrieve your app ID in the top left corner of your new application.
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Cloudflare_App_ID_4bbe1c06b2.png)
+![Atlas App Service AppID](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Cloudflare_App_ID_4bbe1c06b2.png)
 
 ### Authentication Via API Keys
 
 Head to Authentication > API Keys.
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Cloudflare_Auth_4c4dbb77dd.png)
+![Authentication by API keys](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Cloudflare_Auth_4c4dbb77dd.png)
 
 Activate the provider and save the draft.
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Enable_Auth_40a8469d77.png)
+![Activate authentication by API keys](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Enable_Auth_40a8469d77.png)
 
 We need to create an API key, but we can only do so if the provider is already deployed. Click on review and deploy.
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Review_Draft_00f943f822.png)
+![Review draft and deploy button](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Review_Draft_00f943f822.png)
 
 Now you can create an API key and **save it somewhere**! It will only be displayed **once**. If you lose it, discard this one and create a new one.
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/API_Key_4005d64dc9.png)
+![API key](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/API_Key_4005d64dc9.png)
 
-We only have a single user in our application as we only created a single API key. Note that this tutorial would work with any other authentication method if you update the authentication code accordingly in the worker.
+We only have a single user in our application as we only created a single API key. Note that this tutorial would work with any [other authentication method](https://www.mongodb.com/docs/atlas/app-services/users/#authentication-providers) if you update the authentication code accordingly in the worker.
 
 ### Collection Rules
 
@@ -79,21 +81,43 @@ Head to the Rules tab and let's create this new `cloudflare.todos` collection.
 
 First, click "create a collection".
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Create_Collection_b35881aff7.png)
+![Access rules and click to create a new collection](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Create_Collection_b35881aff7.png)
 
 Next, name your database  `cloudflare` and collection  `todos`. Click create!
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Name_Collection_9435b5eb39.png)
+![Create a new collection to add a rule](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Name_Collection_9435b5eb39.png)
 
-Each document in this collection will belong to a unique user defined by the `owner` field. This field will contain the user ID that you can see in the `App Users` tab.
+Each document in this collection will belong to a unique user defined by the `owner_id` field. This field will contain the user ID that you can see in the `App Users` tab.
 
-To limit users to only reading and writing their own data, click on your new `todos` collection in the Rules UI. Start with the read and write all default role.
+To limit users to only reading and writing their own data, click on your new `todos` collection in the Rules UI. Add the rule `readOwnWriteOwn` in the `Other presets`.
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Correct_Rule_b5633a3c11.png)
+![Rule Read Own Write Own](https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blte1bdebe491481003/66074198e838c8a21b60caf3/readOwnWriteOwn.png)
 
-Now, edit the default role's name to owner and add `{"owner": "user.id"}` in the "Apply When" section.
+After adding this preset role, you can double-check the rule by clicking on the `Advanced view`. It should contain the following:
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/Right_Rule2_7dcbd16a9d.png)
+```json
+{
+  "roles": [
+    {
+      "name": "readOwnWriteOwn",
+      "apply_when": {},
+      "document_filters": {
+        "write": {
+          "owner_id": "%%user.id"
+        },
+        "read": {
+          "owner_id": "%%user.id"
+        }
+      },
+      "read": true,
+      "write": true,
+      "insert": true,
+      "delete": true,
+      "search": true
+    }
+  ]
+}
+```
 
 You can now click one more time on `Review Draft and Deploy`. Our application is now ready to use.
 
@@ -111,19 +135,19 @@ Now that we have the worker template, we just need to change the configuration t
 
 Edit the file `wrangler.toml`:
 - Replace `CLOUDFLARE_ACCOUNT_ID` with your real Cloudflare account ID.
-- Replace `MONGODB_REALM_APPID` with your real MongoDB Atlas App Services app ID.
+- Replace `MONGODB_ATLAS_APPID` with your real MongoDB Atlas App Services app ID.
 
 You can now deploy your worker to your Cloudflare account using [Wrangler](https://developers.cloudflare.com/workers/cli-wrangler/install-update):
 
 ```shell
-$ npm i @cloudflare/wrangler -g
+$ npm i wrangler -g
 $ wrangler login
-$ wrangler publish
+$ wrangler deploy
 ```
 
 Head to your Cloudflare account. You should now see your new worker in the Workers tab > Overview.
 
-![](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/cloudflare_worker_deployed_e2f606f4c5_37e33747b4.png)
+![New worker created in your cloudflare account](https://mongodb-devhub-cms.s3.us-west-1.amazonaws.com/cloudflare_worker_deployed_e2f606f4c5_37e33747b4.png)
 
 ## Check Out the REST API Code
 
@@ -135,8 +159,8 @@ import * as utils from './utils';
 
 // The Worker's environment bindings. See `wrangler.toml` file.
 interface Bindings {
-    // MongoDB Atlas App Services Application ID
-    REALM_APPID: string;
+    // MongoDB Atlas Application ID
+    ATLAS_APPID: string;
 }
 
 // Define type alias; available via `realm-web`
@@ -144,7 +168,7 @@ type Document = globalThis.Realm.Services.MongoDB.Document;
 
 // Declare the interface for a "todos" document
 interface Todo extends Document {
-    owner: string;
+    owner_id: string;
     done: boolean;
     todo: string;
 }
@@ -156,18 +180,18 @@ const ObjectId = Realm.BSON.ObjectID;
 const worker: ExportedHandler<Bindings> = {
     async fetch(req, env) {
         const url = new URL(req.url);
-        App = App || new Realm.App(env.REALM_APPID);
+        App = App || new Realm.App(env.ATLAS_APPID);
 
         const method = req.method;
         const path = url.pathname.replace(/[/]$/, '');
         const todoID = url.searchParams.get('id') || '';
 
         if (path !== '/api/todos') {
-            return utils.toError(`Unknown "${path}" URL; try "/api/todos" instead.`, 404);
+            return utils.toError(`Unknown '${path}' URL; try '/api/todos' instead.`, 404);
         }
 
         const token = req.headers.get('authorization');
-        if (!token) return utils.toError('Missing "authorization" header; try to add the header "authorization: REALM_API_KEY".', 401);
+        if (!token) return utils.toError(`Missing 'authorization' header; try to add the header 'authorization: ATLAS_APP_API_KEY'.`, 401);
 
         try {
             const credentials = Realm.Credentials.apiKey(token);
@@ -203,7 +227,7 @@ const worker: ExportedHandler<Bindings> = {
                 const {todo} = await req.json();
                 return utils.reply(
                     await collection.insertOne({
-                        owner: user.id,
+                        owner_id: user.id,
                         done: false,
                         todo: todo,
                     })
@@ -260,7 +284,7 @@ You can use [Postman](https://www.postman.com/) or anything you want to test you
 In order to make them work, we need to edit the file `api_tests/variables.sh` and provide them with:
 
 - The Cloudflare worker URL: Replace `YOUR_SUBDOMAIN`, so the final worker URL matches yours.
-- The MongoDB Atlas App Service API key: Replace `YOUR_REALM_AUTH_API_KEY` with your auth API key.
+- The MongoDB Atlas App Service API key: Replace `YOUR_ATLAS_APP_AUTH_API_KEY` with your auth API key.
 
 Finally, we can execute all the scripts like this, for example:
 
@@ -281,13 +305,13 @@ $ ./findAll.sh
 [
   {
     "_id": "618615d879c8ad6d1129977d",
-    "owner": "6186154c79c8ad6d11294f60",
+    "owner_id": "6186154c79c8ad6d11294f60",
     "done": false,
     "todo": "Write a good README.md for Github"
   },
   {
     "_id": "618615e479c8ad6d11299e12",
-    "owner": "6186154c79c8ad6d11294f60",
+    "owner_id": "6186154c79c8ad6d11294f60",
     "done": false,
     "todo": "Commit and push"
   }
@@ -296,7 +320,7 @@ $ ./findAll.sh
 $ ./findOne.sh 618615d879c8ad6d1129977d
 {
   "_id": "618615d879c8ad6d1129977d",
-  "owner": "6186154c79c8ad6d11294f60",
+  "owner_id": "6186154c79c8ad6d11294f60",
   "done": false,
   "todo": "Write a good README.md for Github"
 }
@@ -311,13 +335,13 @@ $ ./findAll.sh
 [
   {
     "_id": "618615d879c8ad6d1129977d",
-    "owner": "6186154c79c8ad6d11294f60",
+    "owner_id": "6186154c79c8ad6d11294f60",
     "done": true,
     "todo": "Write a good README.md for Github"
   },
   {
     "_id": "618615e479c8ad6d11299e12",
-    "owner": "6186154c79c8ad6d11294f60",
+    "owner_id": "6186154c79c8ad6d11294f60",
     "done": false,
     "todo": "Commit and push"
   }
@@ -332,7 +356,7 @@ $ ./findAll.sh
 [
   {
     "_id": "618615e479c8ad6d11299e12",
-    "owner": "6186154c79c8ad6d11294f60",
+    "owner_id": "6186154c79c8ad6d11294f60",
     "done": false,
     "todo": "Commit and push"
   }
