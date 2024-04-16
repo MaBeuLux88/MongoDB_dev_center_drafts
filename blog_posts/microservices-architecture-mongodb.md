@@ -1,17 +1,17 @@
-# Microservices Architecture With Java, Spring And MongoDB
+# Microservices Architecture With Java, Spring, and MongoDB
 
 ## Introduction
 
-"Microservices are awesome and monolith applications are evil."
+"Microservices are awesome and monolithic applications are evil."
 
-If you are reading this blog post, you have already read that a million times, and I'm not the one who's going to tell
+If you are reading this article, you have already read that a million times, and I'm not the one who's going to tell
 you otherwise!
 
 In this post, we are going to create a microservices architecture using MongoDB.
 
 ## TL;DR
 
-The source code is available in these 2 repositories.
+The source code is available in these two repositories.
 
 The [README.md](https://github.com/mongodb-developer/microservices-architecture-mongodb/blob/main/README.md) files will
 help you start everything.
@@ -25,7 +25,7 @@ git clone git@github.com:mongodb-developer/microservices-architecture-mongodb-co
 
 We are going to use Spring Boot and Spring Cloud dependencies to build our architecture.
 
-Here is what a Microservices architecture looks like [according to Spring](https://spring.io/microservices):
+Here is what a microservices architecture looks like, [according to Spring](https://spring.io/microservices):
 
 ![Spring Microservices Architecture][1]
 
@@ -37,7 +37,7 @@ As you read this post, I suggest that you follow the instructions in the [README
 
 The first service that we need is a configuration server.
 
-This service allows use to store all the configuration files of our microservices in a single repository so our
+This service allows us to store all the configuration files of our microservices in a single repository so our
 configurations are easy to version and store.
 
 The configuration of our config server is simple and straight to the point:
@@ -77,7 +77,7 @@ A service registry is like a phone book for microservices. It keeps track of whi
 they are located (IP address and port). Other services can look up this information to find and communicate with the
 microservices they need.
 
-A service registry is useful because it enables client-side load-balancing and decouples service providers from
+A service registry is useful because it enables client-side load balancing and decouples service providers from
 consumers without the need for DNS.
 
 Again, you don't need much to be able to start a Spring Boot service registry. The `@EnableEurekaServer` annotation
@@ -108,21 +108,21 @@ eureka.client.register-with-eureka=false
 eureka.client.fetch-registry=false
 ```
 
-> The last 2 lines prevent the service registry to register to itself and retrieve the registry from itself.
+> The last two lines prevent the service registry from registering to itself and retrieving the registry from itself.
 
 ### API gateway
 
 The API gateway service allows us to have a single point of entry to access all our microservices. Of course, you should
 have more than one in production, but all of them will be able to communicate with all the microservices and distribute
-the workload evenly by load balancing the queries across your pool of microservices.
+the workload evenly by load-balancing the queries across your pool of microservices.
 
-Also, api gateway are useful to address cross-cutting concerns like security, monitoring, metrics gathering and
+Also, an API gateway is useful to address cross-cutting concerns like security, monitoring, metrics gathering, and
 resiliency.
 
-When our microservices start, they register themselves to the service registry. The api gateway can use this registry to
+When our microservices start, they register themselves to the service registry. The API gateway can use this registry to
 locate the microservices and distribute the queries according to its routing configuration.
 
-```
+```yaml
 server:
   port: 8080
 
@@ -165,7 +165,7 @@ file to run everything.
 
 > Note that in
 > the [configuration files](https://github.com/mongodb-developer/microservices-architecture-mongodb-config-repo) for the
-> company and employee services, they are respectively running on port 8081 and 8082.
+> company and employee services, they are respectively running on ports 8081 and 8082.
 
 [company-service.properties](https://github.com/mongodb-developer/microservices-architecture-mongodb-config-repo/blob/main/company-service.properties)
 
@@ -209,7 +209,7 @@ MongoDB Atlas. You can overwrite the MongoDB URI with the environment variables 
 
 ## Test the REST APIs
 
-At this point, you should have 5 services running:
+At this point, you should have five services running:
 
 - A config-server on port 8888
 - A service-registry on port 8761
@@ -218,7 +218,7 @@ At this point, you should have 5 services running:
   - company-service on port 8081
   - employee-service on port 8082
 
-And two MongoDB nodes on port 27017 and 27018 or two MongoDB clusters on MongoDB Atlas.
+And two MongoDB nodes on ports 27017 and 27018 or two MongoDB clusters on MongoDB Atlas.
 
 If you start the
 script [2_api-tests.sh](https://github.com/mongodb-developer/microservices-architecture-mongodb/blob/main/2_api-tests.sh),
@@ -319,7 +319,7 @@ GET Employees
 
 > Note that the employee service sends queries to the company service to retrieve the details of the employees' company.
 
-This confirms that the service registry is doing its job correctly because the URL only contains a reference to the company microservice. Not its direct IP and port.
+This confirms that the service registry is doing its job correctly because the URL only contains a reference to the company microservice, not its direct IP and port.
 
 ```java
 private CompanyDTO getCompany(String company) {
@@ -344,7 +344,7 @@ The addition of a [Spring Cloud Circuit Breaker](https://spring.io/projects/spri
 improve the resiliency in production and a [Spring Cloud Sleuth](https://spring.io/projects/spring-cloud-sleuth) would
 help with distributed tracing and auto-configuration.
 
-If you have questions, please head to our [developer community website](https://www.mongodb.com/community/forums/) where the MongoDB engineers and the MongoDB community will help you build your next big idea with MongoDB.
+If you have questions, please head to our [Developer Community website](https://www.mongodb.com/community/forums/) where the MongoDB engineers and the MongoDB community will help you build your next big idea with MongoDB.
 
 
 [1]: https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/blt332394d666c28140/661ab5bf188d353a3e2da005/microservices-architecture.svg
