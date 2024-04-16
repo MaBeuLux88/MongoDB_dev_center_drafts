@@ -137,8 +137,8 @@ public class GreetingResource {
 "Hello from Quarkus REST" is nice, but it's not our goal! We want to manipulate data from a `persons` collection in
 MongoDB.
 
-Let's create a `PersonEntity.java` class. I created it in the default `com.mongodb` package which is my `group` from
-earlier. Feel free to adapt.
+Let's create a classic `PersonEntity.java` [POJO](https://en.wikipedia.org/wiki/Plain_old_Java_object) class. I created
+it in the default `com.mongodb` package which is my `group` from earlier. Feel free to change it.
 
 ```java
 package com.mongodb;
@@ -277,7 +277,7 @@ public class PersonResource {
 }
 ```
 
-> Note that with the `@Path` annotation `/api`, the URL of our `/hello` service is now `/api/hello`.
+> Note that with the `@Path("/api")` annotation, the URL of our `/hello` service is now `/api/hello`.
 
 As a consequence, update `PersonResourceTest.java` so our test keeps working.
 
@@ -301,12 +301,12 @@ class PersonResourceTest {
 
 ### Create a person
 
-All the pieces are not in place. We can create our first route to be able to create a new person.
+All the pieces are now in place. We can create our first route to be able to create a new person.
 
 In
 the [repository](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonRepository.java),
-add the following method that inserts a `PersonEntity` and returns the `ObjectId` of the inserted
-document in `String` format.
+add the following method that inserts a `PersonEntity` and returns the inserted document's `ObjectId` in `String`
+format.
 
 ```java
 public String add(PersonEntity person) {
@@ -474,16 +474,16 @@ curl -X DELETE http://localhost:8080/api/person/661dccf785cd323349ca42f7
 
 Again, it returns `1` which is the number of deleted document(s).
 
-Now that we have a working Quarkus application with a MongoDB CRUD service, it's time to test the experience the full
+Now that we have a working Quarkus application with a MongoDB CRUD service, it's time to experience the full
 power of Quarkus.
 
-## Native build
+## Quarkus native build
 
 Quit the developer mode by simply hitting the `q` key in the relevant terminal.
 
-Now it's time to build
+It's time to build
 the [native executable](https://www.graalvm.org/latest/reference-manual/native-image/guides/build-static-executables/)
-that we can use in production with GraalVM and experience the insanely fast start up time.
+that we can use in production with GraalVM and experience the *insanely* fast start up time.
 
 Use this command line to build directly with your local GraalVM and other dependencies.
 
@@ -514,7 +514,8 @@ the [container first documentation](https://quarkus.io/container-first/).
 In this tutorial, we've explored how Quarkus and MongoDB can team up to create a lightning-fast RESTful APIs with CRUD
 capabilities.
 
-Now equipped with these insights, you're ready to build blazing-fast APIs with Quarkus, GraalVM and MongoDB. Dive into the
+Now equipped with these insights, you're ready to build blazing-fast APIs with Quarkus, GraalVM and MongoDB. Dive into
+the
 provided [GitHub repository](https://github.com/mongodb-developer/quarkus-mongodb-crud) for more details.
 
 > If you have questions, please head to our [developer community website](https://community.mongodb.com/) where the
