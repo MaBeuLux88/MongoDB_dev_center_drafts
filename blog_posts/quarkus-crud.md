@@ -21,7 +21,7 @@ for [GraalVM](https://www.graalvm.org/) and [HotSpot](https://en.wikipedia.org/w
 With Quarkus you can build native binaries that can boot and send their first response in 0.042 seconds versus 9.5
 seconds for a traditional Java application.
 
-==> IMAGE HERE FROM https://quarkus.io/
+![Quarkus startup time](https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/bltc34b97d1a8137f01/661dddb79cbc2a964ea9cc2a/quarkus.png)
 
 In this tutorial, we are going to build a Quarkus application that can manage a `persons` collection in MongoDB. The
 goal is to perform four simple CRUD operations with a REST API using a native application.
