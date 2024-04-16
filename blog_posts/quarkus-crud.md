@@ -7,9 +7,8 @@ This bytecode can then be executed by a Java Virtual Machine (JVM) specific to t
 running. This is why we can say that Java is a portable language. You compile once, and you can run it everywhere,
 as long as you have the right JVM on the right machine.
 
-This is a great mechanism, but it's comes at a cost. Starting a program is slow because the JVM and the entire context
-needs to be loaded first before running anything, and it's not memory efficient because we need to run an entire JVM for
-maybe just ten lines of code.
+This is a great mechanism, but it comes at a cost. Starting a program is slow because the JVM and the entire context
+needs to be loaded first before running anything. It's not memory-efficient because we need to load hundreds of classes that might not be used at all in the end as the [classpath scanning only occurs after](https://quarkus.io/container-first/).
 
 This was perfectly fine in the old monolithic realm, but this is totally unacceptable in the new world made of lambda
 functions, cloud, containers and Kubernetes. In this context, a low memory footprint and a lightning fast startup time
@@ -30,8 +29,9 @@ goal is to perform four simple CRUD operations with a REST API using a native ap
 
 For this tutorial you'll need:
 
-- [Docker](https://docs.docker.com/engine/install/)
-- [GraalVM](https://www.graalvm.org/latest/docs/getting-started/)
+- [cURL](https://curl.se/).
+- [Docker](https://docs.docker.com/engine/install/).
+- [GraalVM](https://www.graalvm.org/latest/docs/getting-started/).
 - A [MongoDB Atlas](https://www.mongodb.com/atlas/database) cluster or a local instance. I'll use a Docker container in
   this tutorial.
 
@@ -51,7 +51,7 @@ the [GitHub repository](https://github.com/mongodb-developer/quarkus-mongodb-cru
 The easiest way to get your project up and running with Quarkus and all the dependencies you need is to
 use [https://code.quarkus.io/](https://code.quarkus.io/).
 
-Very much like [https://start.spring.io/](https://start.spring.io/), the Quarkus project starter website will help you
+Similar to [https://start.spring.io/](https://start.spring.io/), the Quarkus project starter website will help you
 select your dependencies and build your Maven or Gradle configuration file. Some dependencies will also include a
 starter code to assist you in your first steps.
 
@@ -70,8 +70,8 @@ file provided.
 
 Finally, we need a MongoDB cluster. Two solutions:
 
-- Create a new cluster on [MongoDB Atlas](https://www.mongodb.com/atlas/database) and retrieve the connection string.
-- Create an ephemeral single node replica set with Docker.
+- Create a new cluster on [MongoDB Atlas](https://www.mongodb.com/atlas/database) and retrieve the connection string. OR
+- Create an ephemeral single-node replica set with Docker.
 
 ```bash
 docker run --rm -d -p 27017:27017 -h $(hostname) --name mongo mongo:latest --replSet=RS && sleep 5 && docker exec mongo mongosh --quiet --eval "rs.initiate();"
@@ -94,16 +94,20 @@ program.
 ./mvnw compile quarkus:dev
 ```
 
-This developer mode comes with two handy features:
+The developer mode comes with two handy features:
 
 - [Swagger UI](http://localhost:8080/q/swagger-ui/#/)
 - [Quarkus Dev UI](http://localhost:8080/q/dev/)
 
-Also, as your service is now running, you should be able to receive your first HTTP communication:
+Feel free to take some time to explore both these UIs and see the capabilities they offer.
+
+Also, as your service is now running, you should be able to receive your first HTTP communication. Open a new terminal and execute the following query:
 
 ```bash
 curl http://localhost:8080/hello
 ```
+
+> Note: If you cloned the repo, then it’s `/api/hello`. We are changing this below in a minute.
 
 Result:
 
@@ -301,7 +305,7 @@ class PersonResourceTest {
 
 ### Create a person
 
-All the pieces are now in place. We can create our first route to be able to create a new person.
+All the code blocks are now in place. We can create our first route to be able to create a new person.
 
 In
 the [repository](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonRepository.java),
@@ -479,7 +483,7 @@ Quit the developer mode by simply hitting the `q` key in the relevant terminal.
 
 It's time to build
 the [native executable](https://www.graalvm.org/latest/reference-manual/native-image/guides/build-static-executables/)
-that we can use in production with GraalVM and experience the *insanely* fast start up time.
+that we can use in production with GraalVM and experience the *insanely* fast start-up time.
 
 Use this command line to build directly with your local GraalVM and other dependencies.
 
@@ -507,10 +511,10 @@ the [container first documentation](https://quarkus.io/container-first/).
 
 ## Conclusion
 
-In this tutorial, we've explored how Quarkus and MongoDB can team up to create a lightning-fast RESTful APIs with CRUD
+In this tutorial, we've explored how Quarkus and MongoDB can team up to create a lightning-fast RESTful API with CRUD
 capabilities.
 
-Now equipped with these insights, you're ready to build blazing-fast APIs with Quarkus, GraalVM and MongoDB. Dive into
+Now equipped with these insights, you're ready to build blazing-fast APIs with Quarkus, GraalVM, and MongoDB. Dive into
 the
 provided [GitHub repository](https://github.com/mongodb-developer/quarkus-mongodb-crud) for more details.
 
