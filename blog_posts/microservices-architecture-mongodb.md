@@ -157,7 +157,7 @@ eureka:
 
 Finally, we have our MongoDB microservices.
 
-Microservices are supposed to be independent of each others. For this reason, we need two MongoDB instances: one for
+Microservices are supposed to be independent of each other. For this reason, we need two MongoDB instances: one for
 each microservice.
 
 Check out the [README.md](https://github.com/mongodb-developer/microservices-architecture-mongodb/blob/main/README.md)
