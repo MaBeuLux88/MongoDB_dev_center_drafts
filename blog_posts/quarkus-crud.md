@@ -319,7 +319,6 @@ the [resource](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/ma
 file, we can create the corresponding route:
 
 ```java
-
 @POST
 @Path("/person")
 public String createPerson(PersonEntity person) {
@@ -374,7 +373,6 @@ the [resource](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/ma
 add:
 
 ```java
-
 @GET
 @Path("/persons")
 public List<PersonEntity> getPersons() {
@@ -421,7 +419,6 @@ the [resource](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/ma
 add:
 
 ```java
-
 @PUT
 @Path("/person/{id}")
 public long anniversaryPerson(@PathParam("id") String id) {
@@ -458,7 +455,6 @@ the [resource](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/ma
 add:
 
 ```java
-
 @DELETE
 @Path("/person/{id}")
 public long deletePerson(@PathParam("id") String id) {
