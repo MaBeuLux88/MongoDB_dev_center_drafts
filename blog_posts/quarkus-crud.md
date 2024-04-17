@@ -1,23 +1,23 @@
-# Creating A REST API For CRUD Operations With Quarkus And MongoDB
+# Creating a REST API for CRUD Operations With Quarkus and MongoDB
 
-## What is Quarkus
+## What is Quarkus?
 
 When we write a traditional Java application, our Java source code is compiled and transformed into Java bytecode.
-This bytecode can then be executed by a Java Virtual Machine (JVM) specific to the operating system you are
+This bytecode can then be executed by a Java virtual machine (JVM) specific to the operating system you are
 running. This is why we can say that Java is a portable language. You compile once, and you can run it everywhere,
 as long as you have the right JVM on the right machine.
 
 This is a great mechanism, but it comes at a cost. Starting a program is slow because the JVM and the entire context
-needs to be loaded first before running anything. It's not memory-efficient because we need to load hundreds of classes that might not be used at all in the end as the [classpath scanning only occurs after](https://quarkus.io/container-first/).
+need to be loaded first before running anything. It's not memory-efficient because we need to load hundreds of classes that might not be used at all in the end as the [classpath scanning only occurs after](https://quarkus.io/container-first/).
 
 This was perfectly fine in the old monolithic realm, but this is totally unacceptable in the new world made of lambda
-functions, cloud, containers and Kubernetes. In this context, a low memory footprint and a lightning fast startup time
+functions, cloud, containers, and Kubernetes. In this context, a low memory footprint and a lightning-fast startup time
 are absolutely mandatory.
 
 This is where [Quarkus](https://quarkus.io/about/) comes in. Quarkus is a Kubernetes-native Java framework tailored
 for [GraalVM](https://www.graalvm.org/) and [HotSpot](https://en.wikipedia.org/wiki/HotSpot_(virtual_machine)).
 
-With Quarkus you can build native binaries that can boot and send their first response in 0.042 seconds versus 9.5
+With Quarkus, you can build native binaries that can boot and send their first response in 0.042 seconds versus 9.5
 seconds for a traditional Java application.
 
 ![Quarkus startup time](https://images.contentstack.io/v3/assets/blt39790b633ee0d5a7/bltc34b97d1a8137f01/661dddb79cbc2a964ea9cc2a/quarkus.png)
@@ -27,7 +27,7 @@ goal is to perform four simple CRUD operations with a REST API using a native ap
 
 ## Prerequisites
 
-For this tutorial you'll need:
+For this tutorial, you'll need:
 
 - [cURL](https://curl.se/).
 - [Docker](https://docs.docker.com/engine/install/).
@@ -51,16 +51,16 @@ the [GitHub repository](https://github.com/mongodb-developer/quarkus-mongodb-cru
 The easiest way to get your project up and running with Quarkus and all the dependencies you need is to
 use [https://code.quarkus.io/](https://code.quarkus.io/).
 
-Similar to [https://start.spring.io/](https://start.spring.io/), the Quarkus project starter website will help you
+Similar to [Spring initializr](https://start.spring.io/), the Quarkus project starter website will help you
 select your dependencies and build your Maven or Gradle configuration file. Some dependencies will also include a
 starter code to assist you in your first steps.
 
 For our project, we are going to need:
 
-- MongoDB client [quarkus-mongodb-client]
-- SmallRye OpenAPI [quarkus-smallrye-openapi]
-- REST [quarkus-rest]
-- REST Jackson [quarkus-rest-jackson]
+- MongoDB client [quarkus-mongodb-client].
+- SmallRye OpenAPI [quarkus-smallrye-openapi].
+- REST [quarkus-rest].
+- REST Jackson [quarkus-rest-jackson].
 
 Feel free to use the `group` and `artifact` of your choice. Make sure the Java version matches the version of your
 GraalVM version, and we are ready to go.
@@ -70,7 +70,7 @@ file provided.
 
 Finally, we need a MongoDB cluster. Two solutions:
 
-- Create a new cluster on [MongoDB Atlas](https://www.mongodb.com/atlas/database) and retrieve the connection string. OR
+- Create a new cluster on [MongoDB Atlas](https://www.mongodb.com/atlas/database) and retrieve the connection string, or
 - Create an ephemeral single-node replica set with Docker.
 
 ```bash
@@ -87,7 +87,7 @@ quarkus.mongodb.connection-string=mongodb://localhost:27017
 
 Now that our Quarkus project is ready, we can start developing.
 
-First, we can start the developer mode which includes a live coding (automatic refresh) without the need to restart the
+First, we can start the developer mode which includes live coding (automatic refresh) without the need to restart the
 program.
 
 ```bash
@@ -219,7 +219,7 @@ We now have a class to map our MongoDB documents to using [Jackson](https://gith
 
 ### PersonRepository
 
-Now that we have a `PersonEntity` we can create a `PersonRepository` template, ready to welcome our CRUD queries.
+Now that we have a `PersonEntity`, we can create a `PersonRepository` template, ready to welcome our CRUD queries.
 
 Create a `PersonRepository.java` class next to the `PersonEntity.java` one.
 
@@ -338,7 +338,7 @@ curl -X POST http://localhost:8080/api/person \
      -d '{"name": "John Doe", "age": 30}'
 ```
 
-Which should return the `ObjectId` of the new `person` document.
+This should return the `ObjectId` of the new `person` document.
 
 ```
 661dccf785cd323349ca42f7
@@ -360,10 +360,10 @@ RS [direct: primary] test> db.persons.find()
 
 ### Read persons
 
-Now we can read all the persons in the database for example.
+Now, we can read all the persons in the database, for example.
 
 In
-the [repository](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonRepository.java)
+the [repository](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonRepository.java),
 add:
 
 ```java
@@ -373,7 +373,7 @@ public List<PersonEntity> getPersons() {
 ```
 
 In
-the [resource](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonResource.java)
+the [resource](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonResource.java),
 add:
 
 ```java
@@ -384,13 +384,13 @@ public List<PersonEntity> getPersons() {
 }
 ```
 
-And now we can retrieve all the persons in our database:
+Now, we can retrieve all the persons in our database:
 
 ```bash
 curl http://localhost:8080/api/persons
 ```
 
-Which returns a list of persons:
+This returns a list of persons:
 
 ```json
 [
@@ -407,7 +407,7 @@ Which returns a list of persons:
 It's John Doe's anniversary! Let's increment his age by one.
 
 In
-the [repository](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonRepository.java)
+the [repository](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonRepository.java),
 add:
 
 ```java
@@ -419,7 +419,7 @@ public long anniversaryPerson(String id) {
 ```
 
 In
-the [resource](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonResource.java)
+the [resource](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonResource.java),
 add:
 
 ```java
@@ -444,7 +444,7 @@ then it returns `0` and MongoDB doesn't perform any update.
 Finally, it's time to delete John Doe...
 
 In
-the [repository](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonRepository.java)
+the [repository](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonRepository.java),
 add:
 
 ```java
@@ -455,7 +455,7 @@ public long deletePerson(String id) {
 ```
 
 In
-the [resource](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonResource.java)
+the [resource](https://github.com/mongodb-developer/quarkus-mongodb-crud/blob/main/src/main/java/com/mongodb/PersonResource.java),
 add:
 
 ```java
@@ -503,7 +503,7 @@ The final result is a native application, ready to be launched, in your `target`
 ./target/quarkus-mongodb-crud-1.0.0-SNAPSHOT-runner
 ```
 
-On my laptop, it starts in **JUST 0.019s**! Remember how much time Spring Boot needs to start an application and respond
+On my laptop, it starts in **just 0.019s**! Remember how much time Spring Boot needs to start an application and respond
 to queries for the first time?!
 
 You can read more about how Quarkus makes this miracle a reality in
@@ -518,5 +518,5 @@ Now equipped with these insights, you're ready to build blazing-fast APIs with Q
 the
 provided [GitHub repository](https://github.com/mongodb-developer/quarkus-mongodb-crud) for more details.
 
-> If you have questions, please head to our [developer community website](https://community.mongodb.com/) where the
+> If you have questions, please head to our [Developer Community website](https://community.mongodb.com/) where the
 > MongoDB engineers and the MongoDB community will help you build your next big idea with MongoDB.
