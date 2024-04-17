@@ -1,4 +1,4 @@
-# Connection To MongoDB With Java And SOCKS5 Proxy
+# Connection to MongoDB With Java And SOCKS5 Proxy
 
 ## Introduction
 
@@ -13,14 +13,14 @@ In our case, the network service is MongoDB. Let's see how we can connect to Mon
 
 Authentication is optional for SOCKS5 proxies. So to be able to connect to a SOCKS5 proxy, you need:
 
-- **proxyHost**: IPv4, IPv6 or hostname of the proxy.
-- **proxyPort**: TCP port number (default 1080).
+- **proxyHost**: IPv4, IPv6, or hostname of the proxy
+- **proxyPort**: TCP port number (default 1080)
 
 If authentication is activated, then you'll also need a username and password. Both need to be provided, or it won't
 work.
 
-- **proxyUsername**: the proxy username (not null or empty).
-- **proxyPassword**: the proxy password (not null or empty).
+- **proxyUsername**: the proxy username (not null or empty)
+- **proxyPassword**: the proxy password (not null or empty)
 
 ### Using connection string parameters
 
@@ -64,10 +64,10 @@ public MongoClient connectToMongoDBSocks5WithMongoClientSettings() {
 
 ### Using connection string parameters
 
-If you are using Spring Boot or Spring Data MongoDB, you can connect like so is you are passing the SOCKS5 parameters in
+If you are using Spring Boot or Spring Data MongoDB, you can connect like so if you are passing the SOCKS5 parameters in
 the connection string.
 
-Most of the time if you are using Spring Boot or Spring Data, you'll need the codec registry to
+Most of the time, if you are using Spring Boot or Spring Data, you'll need the codec registry to
 support the POJO mappings. So I included this as well.
 
 ```java
@@ -162,9 +162,9 @@ public class MongoDBConfigurationSocks5 {
 
 ## Conclusion
 
-Hopefully this short guide helped you get connected to MongoDB through your SOCKS5 proxy.
+Leveraging a SOCKS5 proxy for connecting to MongoDB in Java offers enhanced security and flexibility. Whether through connection string parameters or MongoClientSettings, integrating SOCKS5 functionality is straightforward.
 
-If you want to read more details, you can check out the [Jira ticket 4347](https://jira.mongodb.org/browse/JAVA-4347).
+If you want to read more details, you can check out the [SOCKS5 documentation](https://www.mongodb.com/docs/drivers/java/sync/current/fundamentals/connection/socks/) online.
 
-If you have questions, please head to our [developer community website](https://www.mongodb.com/community/forums/) where
+If you have questions, please head to our [Developer Community website](https://www.mongodb.com/community/forums/) where
 the MongoDB engineers and the MongoDB community will help you build your next big idea with MongoDB.
