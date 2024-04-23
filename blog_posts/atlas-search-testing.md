@@ -76,9 +76,9 @@ the full-text search capabilities. As both containers need to know each other, w
 of them know where to find the other one. Additionally, they need a shared secret in order to connect to each other, so
 this is also defined using another environment variable.
 
+```bash
 version: "2"
 
-```bash
 services:
     mongod:
         container_name: mongod
