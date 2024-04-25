@@ -172,8 +172,7 @@ public class Fruit {
                 ", name='" + name + '\'' +
                 '}';
     }
-
-
+  
     public static Fruit of(String name) {
         Fruit fruit = new Fruit();
         fruit.setName(name);
