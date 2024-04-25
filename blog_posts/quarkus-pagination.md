@@ -1,4 +1,4 @@
-# Introduction to Data Pagination with Quarkus and MongoDB: A Comprehensive Tutorial
+# Introduction to Data Pagination With Quarkus and MongoDB: A Comprehensive Tutorial
 
 ## Introduction
 
@@ -9,7 +9,7 @@ demonstrate how to implement these in a Quarkus-connected MongoDB environment. T
 optimize REST APIs for effective data handling.
 
 You can find all the code presented in this tutorial in
-this [GitHub repository](https://github.com/mongodb-developer/quarkus-pagination-sample):
+the [GitHub repository](https://github.com/mongodb-developer/quarkus-pagination-sample):
 
 ```bash
 git clone git@github.com:mongodb-developer/quarkus-pagination-sample.git
@@ -22,8 +22,8 @@ For this tutorial, you'll need:
 - Java 21.
 - Maven.
 - A MongoDB cluster.
-    - MongoDB Atlas (Option 1)
-    - Docker (Option 2)
+  - MongoDB Atlas (Option 1)
+  - Docker (Option 2)
 
 You can use the following Docker command to start a standalone MongoDB instance:
 
@@ -38,10 +38,10 @@ Or you can use MongoDB Atlas and try the M0 free tier to deploy your cluster.
 - Visit the [Quarkus Code Generator](https://code.quarkus.io/).
 - Configure your project by selecting the desired options, such as the group and artifact ID.
 - Add the necessary dependencies to your project. For this tutorial, we will add:
-    - JNoSQL Document MongoDB [quarkus-jnosql-document-mongodb]
-    - RESTEasy Reactive [quarkus-resteasy-reactive]
-    - RESTEasy Reactive Jackson [quarkus-resteasy-reactive-jackson]
-    - OpenAPI [quarkus-smallrye-openapi]
+  - JNoSQL Document MongoDB [quarkus-jnosql-document-mongodb].
+  - RESTEasy Reactive [quarkus-resteasy-reactive].
+  - RESTEasy Reactive Jackson [quarkus-resteasy-reactive-jackson].
+  - OpenAPI [quarkus-smallrye-openapi].
 
 > Note: If you cannot find some dependencies, you can add them manually in the `pom.xml`. See the file below.
 
@@ -188,7 +188,7 @@ public class Fruit {
 We will simplify the integration between Java and MongoDB using the Jakarta Data repository by creating an interface
 that extends NoSQLRepository. The framework automatically implements this interface, enabling us to define methods for
 data retrieval that integrate seamlessly with MongoDB. We will focus on implementing two types of pagination: offset
-pagination represented by `Page`, and keyset (cursor) pagination represented by `CursoredPage`.
+pagination represented by `Page` and keyset (cursor) pagination represented by `CursoredPage`.
 
 Here's how we define the FruitRepository interface to include methods for both pagination strategies:
 
@@ -337,7 +337,7 @@ public class FruitResource {
 Now that we've created our RESTful API for managing developer records, it's time to put it to the test. We'll
 demonstrate how to interact with the API using various HTTP requests and command-line tools.
 
-### Start the project:
+### Start the project
 
 ```bash
 ./mvnw compile quarkus:dev
@@ -348,9 +348,9 @@ demonstrate how to interact with the API using various HTTP requests and command
 We will use `curl` to learn more about pagination using the URLs provided. It is a command-line tool that is often used
 to send HTTP requests. The URLs you have been given are used to access a REST API endpoint fetching fruit pages using
 offset pagination. Each URL requests a different page, enabling us to observe how pagination functions via the API.
-Below is how you can interact with these endpoints using the `curl` tool:
+Below is how you can interact with these endpoints using the `curl` tool.
 
-#### Fetching the first page:
+#### Fetching the first page
 
 This command requests the first page of fruits from the server.
 
@@ -358,7 +358,7 @@ This command requests the first page of fruits from the server.
 curl --location http://localhost:8080/fruits/offset?page=1
 ```
 
-#### Fetching the second page:
+#### Fetching the second page
 
 This command gets the next set of fruits, which is the second page.
 
@@ -366,7 +366,7 @@ This command gets the next set of fruits, which is the second page.
 curl --location http://localhost:8080/fruits/offset?page=2
 ```
 
-#### Fetching the fifth page:
+#### Fetching the fifth page
 
 By requesting the fifth page, you can see how the API responds when you request a page that might be beyond the range of
 existing data.
@@ -378,7 +378,7 @@ curl --location http://localhost:8080/fruits/offset?page=5
 ### Exploring pagination with a cursor
 
 To continue exploring cursor-based pagination with your API, using both `after` and `before` parameters provides a way
-to navigate through your dataset forwards and backwards respectively. This method allows for flexible data retrieval,
+to navigate through your dataset forward and backward respectively. This method allows for flexible data retrieval,
 which can be particularly useful for interfaces that allow users to move to the next or previous set of results. Here's
 how you can structure your `curl` commands to use these parameters effectively:
 
@@ -418,7 +418,7 @@ we demonstrated how to populate the database with initial data and ensure clean 
 
 Throughout this tutorial, we've engaged in live coding sessions, implementing and testing various pagination methods.
 We've used the `curl` command to interact with the API, fetching data with no parameters, and using `after` and `before`
-parameters to navigate through the dataset forwards and backwards. The use of cursor-based pagination, in particular,
+parameters to navigate through the dataset forward and backward. The use of cursor-based pagination, in particular,
 has showcased its benefits in scenarios where datasets are frequently updated or when precise data retrieval control is
 needed. This approach not only boosts performance by avoiding the common issues of offset pagination but also provides a
 user-friendly way to navigate through data.
